@@ -1,0 +1,7 @@
+sim_env_id,policy_name,Ntotal,Psucc_percent,Dinc_total,Dinc_per_episode,Aloc_percent,tau_avg_success_sec,Econ_Wh_mean,Etime_sec,mean_speed_mps,mean_mu_T,mean_mu_A,reward_sum_mean,performance_reward_sum_mean,performance_reward_sum_total
+e2,Analytic-OSD+Fuzzy+OP-CBRS,50.0,100.0,45.0,0.9,99.7606,94.1472,5.3703,94.1472,0.8732,0.9565,0.8855,937.3877,0.0,0.0
+e2,Eval-Transferred-OSD+Fuzzy+OP-CBRS-e2,175.0,100.0,209.0,1.1943,99.785,92.8443,5.3128,92.8443,0.8846,0.9562,0.8887,931.5905,0.0,0.0
+e2,Uniform-Speed-0.25mps,50.0,100.0,64.0,1.28,99.8186,114.464,6.272,114.464,0.7179,0.9593,0.8799,988.4607,0.0,0.0
+e2,Uniform-Speed-0.50mps,50.0,100.0,68.0,1.36,99.8344,104.4592,5.8235,104.4592,0.7875,0.9585,0.882,964.6292,0.0,0.0
+e2,Uniform-Speed-0.75mps,50.0,100.0,57.0,1.14,99.8071,96.5664,5.4744,96.5664,0.8508,0.9577,0.8847,943.576,0.0,0.0
+e2,Uniform-Speed-1.00mps,50.0,100.0,45.0,0.9,99.7606,94.1472,5.3703,94.1472,0.8732,0.9565,0.8855,936.2137,0.0,0.0
