@@ -162,139 +162,616 @@ Do **not** run `drone.py` with a normal system Python interpreter.
 
 ---
 
-## 5. Code Tour: `drone.py`
+## 5. Detailed Code Tour: `drone.py`
 
-The implementation is organized around the following parts.
+The file `drone.py` is the complete implementation entry point for the Isaac Sim / Isaac Lab UAV inspection experiments.
+It combines environment construction, GPS-denied localization simulation, fuzzy OSD control, OP-CBRS reward shaping, PPO training, Sim2Sim transfer, evaluation, metric logging, and figure generation in one reproducible script.
 
-### 5.1 Argument Parser
+### 5.1 High-Level File Structure
 
-The `parse_args()` function defines all experiment controls, including:
-
-```text
---mode
---headless
---device
---sim-env-id
---slam-mode
---output-root
---metrics-dir
---trajectory-dir
---figure-dir
---potential-library
---source-model
---transfer-model
---uniform-speeds
---offline-episodes-per-speed
---total-timesteps
---transfer-timesteps
---eval-episodes
---osd-vmin
---osd-vmax
---policy-analytic-blend
---adaptive-speed-floor
---yaw-gain
---velocity-memory
---inspection-reach-radius
---max-episode-steps
-```
-
-The most important `--mode` values are:
-
-| Mode | Function |
+| Code block / class | Role in the implementation |
 |---|---|
-| `collect_uniform_speed` | Collects fixed-speed inspection rollouts for OP-CBRS. |
-| `build_op_cbrs_library` | Builds the potential library from collected rollouts. |
-| `train_e1_osd` | Trains source-domain PPO OSD policy in `e1`. |
-| `transfer_e2` | Fine-tunes/transfers the source policy to `e2`. |
-| `eval_baselines` | Evaluates fixed-speed and analytic baselines. |
-| `eval_transfer` | Evaluates the source or transferred policy. |
-| `paper_pipeline` | Reserved for full paper-style pipeline execution. |
-| `random` | Runs a random/debug policy. |
-| `train` | Generic training mode. |
+| `parse_args()` | Defines all command-line controls for simulation, training, transfer, evaluation, SLAM, metrics, and figure export. |
+| `CuvslamOdomReceiver` | Receives external Isaac ROS Visual SLAM odometry through either direct `rclpy` subscription or UDP JSON fallback. |
+| `NPPDroneGymEnv` | Main Gymnasium environment. It builds the Isaac scene, manages UAV motion, simulates proxy-VSLAM, computes fuzzy memberships, applies OP-CBRS shaping, and records metrics. |
+| `main()` | Creates the Isaac `SimulationApp`, builds the environment, dispatches each experiment mode, trains PPO, evaluates policies, and writes the algorithm manifest. |
 
-### 5.2 `CuvslamOdomReceiver`
+The implementation is designed so that the same script can be used for debugging, offline OP-CBRS data collection, source-domain training, target-domain transfer, baseline evaluation, final policy evaluation, and compact paper-package generation.
 
-This class receives external cuVSLAM odometry for GPS-denied policy input.
+---
 
-It supports two paths:
+### 5.2 Command-Line Interface and Experiment Control
 
-1. Direct `rclpy` subscription to `/visual_slam/tracking/odometry`.
-2. UDP JSON fallback on port `14555`.
+The `parse_args()` function exposes all important experimental settings.
+The arguments are grouped into six practical categories.
 
-This fallback is useful when Isaac Sim Python and ROS 2 Humble use incompatible Python environments.
+#### A. Execution and algorithm mode
 
-### 5.3 `NPPDroneGymEnv`
+| Argument | Purpose |
+|---|---|
+| `--mode` | Selects the running stage: training, evaluation, OP-CBRS collection, Sim2Sim transfer, or full paper pipeline. |
+| `--headless` | Runs Isaac Sim without GUI, useful for server-side training/evaluation. |
+| `--device` | Selects `cpu` or `cuda`. |
+| `--seed` | Controls deterministic initialization. |
+| `--renderer` | Selects the Isaac Sim renderer, e.g., `RayTracedLighting` or `PathTracing`. |
 
-`NPPDroneGymEnv` is the main Gymnasium environment.
-It creates the Isaac Sim world, UAV, industrial/power-plant scenes, sensors, proxy-SLAM state, route logic, rewards, and metrics.
+Supported modes:
 
-The environment includes:
+| Mode | What it does | Typical output |
+|---|---|---|
+| `random` | Runs the analytic OSD + fuzzy + OP-CBRS inspection controller for demonstration and debugging. | Step/episode metrics, trajectory files, rendered figures. |
+| `collect_uniform_speed` | Collects fixed-speed offline rollouts for the OP-CBRS potential library. | Uniform-speed CSV data and potential-library inputs. |
+| `build_op_cbrs_library` | Builds or rebuilds the OP-CBRS potential library from existing collected data. | `op_cbrs_library.json`. |
+| `train_e1_osd` | Trains the source-domain PPO OSD policy in `e1`. | `osd_fuzzy_opcbrs_source_e1.zip`. |
+| `transfer_e2` | Fine-tunes the source model in the target domain `e2`. | `osd_fuzzy_opcbrs_transfer_e2.zip`. |
+| `eval_baselines` | Evaluates uniform-speed and analytic baselines in the selected domain. | Baseline metric CSVs and figures. |
+| `eval_transfer` | Evaluates the source or transferred PPO policy. | Transfer metric CSVs, trajectories, heatmaps, and figures. |
+| `paper_pipeline` | Runs the full pipeline: collect, build library, train source, transfer, evaluate baselines, evaluate transfer. | Complete paper-aligned output package. |
 
-- procedural power-plant source domain,
-- industrial target transfer domain,
-- optional imported plant assets,
-- optional imported drone USD asset,
-- stereo camera prims for ROS 2 / cuVSLAM experiments,
-- downward inspection camera for heatmaps,
-- proxy SLAM drift/noise model,
-- route completion logic,
-- collision and obstacle handling,
-- paper metric logging.
+#### B. Domain and route configuration
 
-### 5.4 Scene and Sensor Construction
+| Argument | Purpose |
+|---|---|
+| `--sim-env-id e1` | Uses the source power-plant / nuclear-style domain with a 16-waypoint route. |
+| `--sim-env-id e2` | Uses the target industrial domain with a 12-waypoint route. |
+| `--world-size` | Controls the simulation world size. |
+| `--inspection-reach-radius` | Distance threshold for accepting an inspection waypoint as reached. |
+| `--max-episode-steps` | Soft step budget for an episode. |
+| `--allow-timeout-before-route-complete` | Allows timeout before all route waypoints are reached. By default, evaluation modes prefer route completion. |
 
-Important scene functions include:
+#### C. OSD, PPO, and transfer settings
 
-```text
-_create_power_plant()
-_create_warehouse_industrial_layout()
-_create_procedural_power_plant()
-_create_reactor_containment()
-_create_substation()
-_create_visual_landmarks()
-_create_perimeter_fence()
-_create_drone()
-_create_sensor_rig_visuals()
-_create_stereo_camera_prims()
-_setup_ros2_stereo_camera_graph()
+| Argument | Purpose |
+|---|---|
+| `--osd-vmin` / `--osd-vmax` | Defines the scalar OSD action range in m/s. |
+| `--total-timesteps` | PPO source-domain training budget. |
+| `--transfer-timesteps` | PPO target-domain fine-tuning budget. |
+| `--train-episodes` | Optional episode-based stop condition for source training. |
+| `--transfer-episodes` | Optional episode-based stop condition for Sim2Sim transfer. |
+| `--source-model` | Source `e1` model path used for transfer or evaluation. |
+| `--transfer-model` | Target `e2` transferred model path used for evaluation. |
+| `--policy-analytic-blend` | Blends learned PPO speed with analytic fuzzy OSD speed for safer transfer. |
+| `--adaptive-speed-floor` | Prevents the transferred policy from becoming too slow in low-risk segments. |
+| `--yaw-gain` | Waypoint-facing yaw controller gain. |
+| `--velocity-memory` | Smooths the commanded velocity. Lower values track speed commands faster. |
+
+#### D. OP-CBRS and baseline settings
+
+| Argument | Purpose |
+|---|---|
+| `--uniform-speeds` | Defines fixed-speed tasks, e.g., `0.25,0.50,0.75,1.00`. |
+| `--offline-episodes-per-speed` | Number of offline episodes collected per uniform speed. |
+| `--potential-library` | Path to the OP-CBRS potential-library JSON file. |
+| `--enable-op-cbrs` | Enables OP-CBRS-style potential shaping. |
+| `--disable-op-cbrs` | Disables shaping but still logs potential-related values. |
+
+#### E. SLAM, perception, and ROS 2 settings
+
+| Argument | Purpose |
+|---|---|
+| `--slam-mode proxy` | Uses the built-in proxy-VSLAM model with drift/noise/tracking degradation. |
+| `--slam-mode gt` | Uses ground-truth pose for debugging only. |
+| `--slam-mode cuvslam` | Uses external Isaac ROS Visual SLAM odometry. |
+| `--enable-ros2-camera-pub` | Enables Isaac Sim ROS 2 Bridge camera publishing. |
+| `--ros2-domain-id` | Sets `ROS_DOMAIN_ID`. |
+| `--left-image-topic`, `--right-image-topic` | Stereo image topics expected by Isaac ROS Visual SLAM. |
+| `--cuvslam-odom-topic` | Odometry topic used as GPS-denied pose input. |
+| `--cuvslam-odom-udp-port` | UDP fallback port for odometry forwarding. |
+| `--slam-drift-pos-per-sec` | Proxy-SLAM accumulated drift rate. |
+| `--slam-pos-noise-std`, `--slam-yaw-noise-std`, `--slam-vel-noise-std` | Proxy-SLAM pose, yaw, and velocity noise levels. |
+| `--slam-tracking-loss-prob` | Probability of temporary tracking degradation. |
+| `--depth-noise-std` | Noise level for proxy depth-ray perception. |
+
+#### F. Output, metrics, and figure settings
+
+| Argument | Purpose |
+|---|---|
+| `--output-root` | Root output folder, normally `~/uav_inspection`. |
+| `--metrics-dir` | Folder for paper metric CSV files. |
+| `--trajectory-dir` | Folder for per-episode trajectory records. |
+| `--figure-dir` | Folder for paper-style figures. |
+| `--step-metrics-csv` | Optional custom per-step metric CSV path. |
+| `--episode-metrics-csv` | Optional custom per-episode metric CSV path. |
+| `--summary-json` | Optional cumulative summary JSON path. |
+| `--disable-paper-figures` | Disables automatic figure rendering. |
+| `--disable-trajectory-record` | Disables trajectory CSV/JSON export. |
+| `--heatmap-grid-size` | Grid size for saved perception and coverage heatmaps. |
+
+---
+
+### 5.3 `CuvslamOdomReceiver`: External Visual-SLAM Input
+
+`CuvslamOdomReceiver` allows the same environment to run with external Isaac ROS Visual SLAM odometry.
+
+It supports two odometry paths:
+
+| Path | How it works | When to use |
+|---|---|---|
+| Direct `rclpy` subscription | Subscribes to `/visual_slam/tracking/odometry` from inside Isaac Sim Python. | Use when `rclpy` is available in the Isaac Sim Python environment. |
+| UDP JSON fallback | Receives forwarded odometry packets on UDP port `14555`. | Use when Isaac Sim Python and ROS 2 Humble use incompatible Python versions. |
+
+Important methods:
+
+| Method | Purpose |
+|---|---|
+| `quat_to_yaw()` | Converts quaternion orientation into yaw angle. |
+| `_start_udp_receiver()` | Opens the UDP socket for fallback odometry reception. |
+| `_try_start_rclpy_receiver()` | Attempts to subscribe directly to the ROS 2 odometry topic. |
+| `_rclpy_odom_cb()` | Converts ROS 2 `Odometry` messages into internal pose/velocity values. |
+| `_poll_udp()` | Reads UDP JSON odometry packets. |
+| `get_latest()` | Returns the most recent odometry if it is fresh enough. |
+| `close()` | Cleans up ROS 2 node and UDP socket resources. |
+
+This class is important because the paper target is GPS-denied inspection. The policy should receive localization information from a VSLAM-like source rather than assuming perfect GPS.
+
+---
+
+### 5.4 `NPPDroneGymEnv`: Main UAV Inspection Environment
+
+`NPPDroneGymEnv` is the main environment class.
+It inherits from `gym.Env` and provides standard `reset()` and `step()` methods for PPO and evaluation.
+
+The environment is responsible for:
+
+- creating the Isaac Sim world,
+- creating the UAV, buildings, towers, tanks, stacks, fences, roads, and industrial structures,
+- constructing the source `e1` and target `e2` inspection domains,
+- creating stereo camera prims and optional ROS 2 camera publishing,
+- simulating proxy-VSLAM drift, noise, tracking loss, and recovery,
+- defining the scalar OSD action space,
+- generating observations for PPO,
+- applying fuzzy reasoning for texture, illumination, wind, and adherence,
+- applying OP-CBRS potential-based reward shaping,
+- logging per-step and per-episode paper metrics,
+- exporting trajectories, heatmaps, and paper-style figures.
+
+---
+
+### 5.5 Environment Initialization
+
+The `__init__()` method configures the full simulation and learning environment.
+
+Main initialization groups:
+
+| Group | Key variables / arguments | Purpose |
+|---|---|---|
+| Simulation setup | `world_size`, `num_obstacles`, `num_rays`, `dt`, `render_sim` | Defines the physical and rendering scale of the environment. |
+| Asset setup | `drone_usd`, `plant_usd`, `hdri_path`, `save_stage` | Allows imported drone/plant assets and optional stage saving. |
+| OSD speed range | `osd_vmin`, `osd_vmax` | Defines the paper-aligned scalar speed range. |
+| Paper output | `output_root`, `metrics_dir`, `trajectory_dir`, `figure_dir` | Creates all folders needed for reproducible results. |
+| Domain controls | `sim_env_id`, `domain_randomization`, `route_randomization`, `obstacle_randomization` | Controls source/target domain behavior and randomization. |
+| SLAM controls | `slam_mode`, drift/noise settings, ROS 2 topics | Defines proxy-SLAM or cuVSLAM behavior. |
+| Safety and transfer shield | `policy_analytic_blend`, `adaptive_speed_floor`, `obstacle_avoidance_gain`, `yaw_gain`, `velocity_memory` | Improves route completion and safe waypoint tracking during transfer. |
+| Metrics state | `summary_counts`, `trajectory_records`, `episode_metrics` | Stores paper-level metrics and per-episode trajectories. |
+
+The environment also verifies the route length at startup.
+For `e1`, it expects 16 inspection waypoints.
+For `e2`, it expects 12 inspection waypoints.
+This protects the evaluation from accidentally using an outdated or incomplete route definition.
+
+---
+
+### 5.6 Action Space and Observation Space
+
+The implemented action is paper-aligned with the OSD formulation.
+
+```python
+self.action_space = spaces.Box(
+    low=np.array([-1.0], dtype=np.float32),
+    high=np.array([1.0], dtype=np.float32),
+    dtype=np.float32,
+)
 ```
 
-### 5.5 Proxy-VSLAM and cuVSLAM Support
+The PPO policy outputs one normalized scalar action in `[-1, 1]`.
+The environment converts it into a physical speed between `v_min` and `v_max`:
 
-The default SLAM mode is:
+```text
+speed_alpha = 0.5 * (action + 1)
+policy_speed = v_min + speed_alpha * (v_max - v_min)
+```
+
+This means the learned policy does **not** directly control `vx`, `vy`, `vz`, or yaw-rate.
+Instead, it chooses the scalar inspection speed.
+The low-level waypoint tracker converts this speed into body-frame motion toward the active inspection waypoint.
+
+The observation vector includes:
+
+| Observation group | Purpose |
+|---|---|
+| SLAM position | Estimated GPS-denied position. |
+| SLAM velocity | Estimated motion state. |
+| Yaw sine/cosine | Orientation representation without angle discontinuity. |
+| IMU-like acceleration and gyro | Motion cues for policy learning. |
+| Target relative position | Direction and distance to the active inspection waypoint. |
+| Camera/feature cues | Visual texture and target visibility indicators. |
+| Depth rays | Obstacle/scene proximity information. |
+| SLAM tracking quality | Proxy/cuvSLAM localization reliability. |
+| Previous OSD action | Temporal control context. |
+| Mission progress | Route progress and waypoint status. |
+
+---
+
+### 5.7 `reset()`: Episode Initialization
+
+The `reset()` method prepares a new inspection episode.
+
+Main operations:
+
+1. Resets velocity, yaw, IMU-like signals, previous action, and step count.
+2. Applies domain randomization when enabled.
+3. Checks that `e1` has 16 waypoints and `e2` has 12 waypoints.
+4. Places the UAV at a domain-specific starting location and altitude.
+5. Resets the current target index and route progress.
+6. Resets proxy-SLAM / cuVSLAM state.
+7. Starts a new paper-metric episode record.
+8. Synchronizes the visual UAV and sensors in the Isaac scene.
+9. Returns the initial observation.
+
+This makes each evaluation episode self-contained and ensures that all output metrics correspond to a clean route attempt.
+
+---
+
+### 5.8 `step()`: OSD Speed Selection, Tracking, and Reward
+
+The `step()` method is where the learned OSD action becomes UAV motion.
+
+The control sequence is:
+
+```text
+PPO scalar action
+        ↓
+convert normalized action to physical speed
+        ↓
+collect fuzzy navigation metrics
+        ↓
+compute analytic fuzzy OSD speed cap
+        ↓
+blend PPO speed with analytic OSD safety shield
+        ↓
+apply risk-aware speed floor
+        ↓
+slow near waypoints to avoid overshoot
+        ↓
+convert scalar speed to body-frame waypoint tracking
+        ↓
+add local obstacle avoidance
+        ↓
+track altitude and yaw
+        ↓
+update velocity, position, SLAM, scene, reward, and logs
+```
+
+Important details:
+
+| Component | What it does |
+|---|---|
+| PPO speed | Main learned scalar speed from the policy. |
+| Analytic OSD cap | Fuzzy safety cap based on texture, illumination, wind, and adherence. |
+| `policy_analytic_blend` | Controls how much analytic fuzzy OSD is mixed with learned speed. |
+| `adaptive_speed_floor` | Prevents stalled policies when the route is safe. |
+| Near-waypoint slowdown | Reduces overshoot near the target. |
+| Local obstacle avoidance | Adds deterministic local repulsion while keeping the policy action scalar. |
+| Altitude floor | Prevents the UAV from grazing roofs/chimneys. |
+| Velocity memory | Smooths commanded velocity for stable motion. |
+| No-progress watchdog | Stops deadlocked runs without affecting successful route-completion evaluation. |
+
+The method then calls `_compute_reward()` and records the transition.
+If the route is complete, the episode is finalized and figures/metrics can be saved.
+
+---
+
+### 5.9 Scene and Sensor Construction
+
+The environment builds either a procedural plant-style scene, an industrial target scene, or an imported asset scene.
+
+Important scene functions:
+
+| Function | Purpose |
+|---|---|
+| `_build_scene()` | Main scene-construction entry point. |
+| `_create_lighting()` | Adds lighting/HDRI-style visual conditions. |
+| `_create_material_palette()` | Creates materials for concrete, metal, roads, towers, and visual landmarks. |
+| `_create_power_plant()` | Creates or imports the source power-plant-style scene. |
+| `_create_warehouse_industrial_layout()` | Builds the target industrial `e2` layout. |
+| `_create_procedural_power_plant()` | Builds the procedural source `e1` plant. |
+| `_create_reactor_containment()` | Adds dome/reactor-style source-domain structures. |
+| `_create_substation()` | Adds substation-like inspection structures. |
+| `_create_visual_landmarks()` | Adds feature-rich points used by proxy-VSLAM and heatmaps. |
+| `_create_perimeter_fence()` | Adds boundary/fence geometry. |
+| `_create_drone()` | Creates or imports the UAV model. |
+| `_create_sensor_rig_visuals()` | Adds visual sensor rig geometry. |
+| `_create_stereo_camera_prims()` | Creates left/right stereo cameras. |
+| `_setup_ros2_stereo_camera_graph()` | Creates ROS 2 camera-publishing graph for cuVSLAM mode. |
+
+The scene functions separate visual rendering from learning logic.
+This is useful because the same policy-learning code can be evaluated with procedural geometry, imported plant assets, or ROS 2 camera streaming.
+
+---
+
+### 5.10 Route Construction and Domain Difference
+
+The inspection route is generated by `_build_boustrophedon_targets()`.
+
+| Domain | Route design |
+|---|---|
+| `e1` | Source power-plant route with 16 waypoints. |
+| `e2` | Target industrial route with 12 waypoints. |
+
+The route follows a boustrophedon-style coverage pattern.
+This is suitable for infrastructure inspection because the UAV sweeps across inspection objects instead of only flying point-to-point.
+
+Related helper functions:
+
+| Function | Purpose |
+|---|---|
+| `_coverage_layout_metadata()` | Provides route/inspection-area metadata for figures. |
+| `_generate_targets_from_plant_bbox()` | Generates targets from an imported plant bounding box. |
+| `_point_near_route_xy()` | Checks whether a point lies near the planned inspection route. |
+| `_dist_point_segment()` / `_point_segment_distance_xy()` | Compute route-adherence distances. |
+
+---
+
+### 5.11 Proxy-VSLAM and GPS-Denied Localization
+
+The default experiments use proxy-VSLAM through:
 
 ```bash
 --slam-mode proxy
 ```
 
-This mode simulates GPS-denied localization effects through:
+Proxy-VSLAM simulates GPS-denied localization effects using:
+
+- accumulated positional drift,
+- instantaneous position noise,
+- yaw noise,
+- velocity noise,
+- feature-dependent tracking quality,
+- random tracking-loss events,
+- recovery dynamics.
+
+Important methods:
+
+| Function | Purpose |
+|---|---|
+| `_reset_navigation_proxy()` | Initializes SLAM pose, drift, and quality at episode start. |
+| `_update_navigation_proxy()` | Updates SLAM state after each motion step. |
+| `_update_proxy_inertial()` | Updates IMU-like acceleration and angular velocity. |
+| `_localization_error()` | Computes localization error for `Aloc` and drift metrics. |
+| `_target_rel_slam()` | Computes target direction using SLAM-estimated pose. |
+| `_camera_features()` | Builds feature/visibility cues from camera geometry. |
+| `_estimate_visible_feature_count()` | Estimates how many useful visual features are visible. |
+
+In `--slam-mode cuvslam`, the environment can use the latest external odometry from `CuvslamOdomReceiver`.
+This supports future experiments with Isaac ROS Visual SLAM instead of only proxy-SLAM.
+
+---
+
+### 5.12 Fuzzy Reasoning and OSD Memberships
+
+Fuzzy reasoning converts continuous visual and motion cues into interpretable memberships.
+
+Important functions:
+
+| Function | Membership / value |
+|---|---|
+| `_texture_membership()` | Computes `mu_T`, the visual texture membership. |
+| `_illumination_membership()` | Computes `mu_L`, the illumination membership. |
+| `_wind_stability_membership()` | Computes `mu_W`, the wind-stability membership. |
+| `_trajectory_adherence()` | Computes `mu_A`, the route-adherence membership. |
+| `_update_fuzzy_coverage()` | Updates fuzzy coverage quality. |
+| `_compute_osd_speed_memberships()` | Converts fuzzy memberships into LOW/MEDIUM/HIGH speed suitability and a scalar OSD speed. |
+| `_collect_navigation_metrics()` | Collects all fuzzy, localization, speed, coverage, and OP-CBRS metrics for logging/reward calculation. |
+
+The main OSD logic uses:
 
 ```text
---slam-drift-pos-per-sec
---slam-pos-noise-std
---slam-yaw-noise-std
---slam-vel-noise-std
---slam-tracking-loss-prob
---slam-quality-recover-rate
---depth-noise-std
+mu_T  → texture / visual feature quality
+mu_L  → illumination stability
+mu_W  → wind stability
+mu_A  → trajectory adherence
 ```
 
-For external Isaac ROS Visual SLAM, use:
+The resulting speed is lower in risky states, such as low texture or poor adherence, and higher in safer feature-rich regions.
 
-```bash
---slam-mode cuvslam
-```
+---
 
-The default cuVSLAM topics are:
+### 5.13 OP-CBRS Potential Library and Reward Shaping
+
+The OP-CBRS part uses fixed-speed offline rollouts to create potential functions for reward shaping.
+
+Important functions:
+
+| Function | Purpose |
+|---|---|
+| `_load_op_cbrs_library()` | Loads the potential library from JSON. |
+| `_membership_bin()` | Converts fuzzy values into discrete bins. |
+| `_op_cbrs_state_key()` | Builds a state key from fuzzy/context bins. |
+| `_heuristic_state_potential()` | Provides a fallback potential when no library bin is available. |
+| `_select_op_cbrs_potential()` | Selects the context-dependent potential value used for shaping. |
+| `collect_uniform_speed_library()` | Collects fixed-speed task data for the library. |
+| `build_library_from_existing_csv()` | Builds the JSON library from collected CSV data. |
+
+The reward-shaping idea is:
 
 ```text
-/front_stereo_camera/left/image_rect_color
-/front_stereo_camera/right/image_rect_color
-/front_stereo_camera/left/camera_info
-/front_stereo_camera/right/camera_info
-/front_stereo_camera/imu
-/visual_slam/tracking/odometry
+base reward + potential-based shaping
 ```
+
+The potential term gives the UAV denser feedback than sparse waypoint rewards.
+This helps the policy learn when intermediate states are desirable or risky, especially before drift or localization failure becomes severe.
+
+---
+
+### 5.14 Reward Function and Episode Termination
+
+The final reward is computed by `_compute_reward()`.
+
+The reward combines:
+
+| Reward component | Purpose |
+|---|---|
+| Progress reward | Encourages movement toward the active waypoint. |
+| Waypoint reward | Rewards successful inspection waypoint arrival. |
+| Deviation penalty | Penalizes poor route adherence. |
+| Collision / proximity penalty | Discourages unsafe motion near structures. |
+| Texture-sensitive localization penalty | Penalizes risky motion in low-feature regions. |
+| Fuzzy coverage reward | Encourages inspection-quality improvement. |
+| OP-CBRS shaping | Provides dense potential-based guidance. |
+| Energy/speed consideration | Supports time-energy-aware behavior. |
+
+The episode can end because:
+
+- all inspection waypoints are reached,
+- hard safety cap is reached,
+- no-progress watchdog triggers,
+- collision termination is enabled and a collision occurs,
+- timeout is allowed and the step limit is reached.
+
+For paper evaluation, the commands usually use route-completion behavior so the episode does not stop too early before all inspection points are visited.
+
+---
+
+### 5.15 Metrics, CSV Logging, and Paper Outputs
+
+The environment records both step-level and episode-level outputs.
+
+Important functions:
+
+| Function | Purpose |
+|---|---|
+| `_start_paper_episode_metrics()` | Initializes a new metric record at episode start. |
+| `_compute_paper_step_values()` | Computes per-step metrics such as speed, potential, localization error, coverage, and fuzzy memberships. |
+| `_record_paper_step_metrics()` | Appends per-step values to the CSV logger and trajectory buffer. |
+| `_append_csv_row()` | Writes rows into metric CSV files. |
+| `_write_episode_trajectory_csv()` | Saves per-episode trajectory CSV. |
+| `_finalize_paper_episode_metrics()` | Computes and writes final episode metrics. |
+| `_save_episode_artifacts()` | Saves trajectory, figure, and interpretation artifacts. |
+| `_write_algorithm_manifest()` | Writes a JSON summary of the algorithmic stage and configuration. |
+
+Typical outputs:
+
+```text
+~/uav_inspection/metrics/paper_step_metrics.csv
+~/uav_inspection/metrics/paper_episode_metrics.csv
+~/uav_inspection/metrics/paper_summary.json
+~/uav_inspection/trajectories/episode_XXXX_trajectory.csv
+~/uav_inspection/figures/episode_XXXX_trajectory3d.png
+~/uav_inspection/figures/episode_XXXX_decision_dynamics.png
+~/uav_inspection/figures/episode_XXXX_perception_heatmap.png
+~/uav_inspection/figures/episode_XXXX_visual_heatmap_sequence.png
+```
+
+---
+
+### 5.16 Figure and Heatmap Generation
+
+The script automatically generates paper-style visual outputs when figure saving is enabled.
+
+Important functions:
+
+| Function | Purpose |
+|---|---|
+| `_smooth_heatmap_array()` | Smooths heatmap values for visualization. |
+| `_visible_feature_image_heatmap()` | Builds camera-like visual-feature heatmaps. |
+| `_build_heatmap_array()` | Builds global coverage/feature heatmaps. |
+| `_render_fuzzy_sequence_figure()` | Renders dual-camera heatmap sequences. |
+| `_render_episode_figures()` | Generates trajectory, decision-dynamics, perception heatmap, and VSLAM-style figures. |
+
+The generated figures support the README and paper by showing:
+
+- 3D UAV trajectory,
+- proxy-VSLAM map and route,
+- adaptive speed response,
+- OP-CBRS potential behavior,
+- localization error,
+- visual feature response,
+- front/downward camera heatmap sequences.
+
+---
+
+### 5.17 PPO Training and Sim2Sim Transfer in `main()`
+
+The `main()` function creates the Isaac Sim application, imports Isaac/Usd modules, creates the environment, and dispatches each algorithmic mode.
+
+Important inner functions:
+
+| Function | Purpose |
+|---|---|
+| `make_env()` | Creates `NPPDroneGymEnv` with all CLI settings. |
+| `_osd_fuzzy_action()` | Analytic fuzzy OSD controller used for baseline and debugging. |
+| `_uniform_speed_action()` | Fixed-speed policy used for OP-CBRS offline tasks. |
+| `_rollout_action_policy()` | Runs a policy for a specified number of episodes. |
+| `collect_uniform_speed_library()` | Collects uniform-speed rollouts. |
+| `build_library_from_existing_csv()` | Builds OP-CBRS library from collected data. |
+| `train_ppo_policy()` | Trains PPO in `e1` or fine-tunes in `e2`. |
+| `evaluate_model()` | Loads and evaluates a trained PPO model. |
+| `eval_baselines()` | Evaluates uniform-speed and analytic fuzzy baselines. |
+
+The mode-dispatch logic is:
+
+```text
+random
+  → run analytic OSD + fuzzy + OP-CBRS demonstration
+
+collect_uniform_speed
+  → collect fixed-speed rollouts for OP-CBRS
+
+build_op_cbrs_library
+  → build potential library JSON
+
+train_e1_osd
+  → train source PPO OSD policy in e1
+
+transfer_e2
+  → load source model and fine-tune in e2
+
+eval_baselines
+  → evaluate fixed-speed and analytic baselines
+
+eval_transfer
+  → evaluate source or transferred PPO model
+
+paper_pipeline
+  → collect data, build library, train source, transfer, evaluate, and write manifest
+```
+
+---
+
+### 5.18 Recommended Reading Order for New Users
+
+For understanding the code quickly, read the file in this order:
+
+1. `parse_args()` to understand all experiment controls.
+2. `NPPDroneGymEnv.__init__()` to understand environment configuration.
+3. `_build_boustrophedon_targets()` to verify source/target routes.
+4. `reset()` to understand episode initialization.
+5. `step()` to understand OSD action conversion and low-level control.
+6. `_collect_navigation_metrics()` to understand fuzzy state variables.
+7. `_compute_osd_speed_memberships()` to understand fuzzy speed decisions.
+8. `_select_op_cbrs_potential()` to understand potential selection.
+9. `_compute_reward()` to understand final reward shaping.
+10. `_finalize_paper_episode_metrics()` and `_render_episode_figures()` to understand output generation.
+11. `main()` to understand how each command-line mode is executed.
+
+---
+
+### 5.19 Why This Code Tour Matters
+
+This code structure directly matches the paper workflow:
+
+```text
+uniform-speed tasks
+    → OP-CBRS potential library
+    → PPO OSD source training
+    → Sim2Sim target transfer
+    → proxy/cuvSLAM GPS-denied evaluation
+    → paper metrics, result tables, trajectories, and figures
+```
+
+Therefore, the README is not only a usage guide.
+It also explains how each code block corresponds to the proposed UAV inspection framework.
+
 
 ---
 
