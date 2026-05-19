@@ -80,15 +80,15 @@ Paper metrics, figures, selected episodes, and compact result package
 
 ---
 
-## 3. Simulation Rendering Screenshots and Videos
+## 3. Simulation Rendering Screenshots and GIF Videos
 
 This repository includes simulation-rendering media captured from the Isaac Sim / Isaac Lab experiments.
 The screenshots show the UAV inspection scene, route-following behavior, industrial/power-plant rendering, and visual inspection environment.
-The videos provide qualitative evidence of the UAV motion and policy execution during simulation runs.
+The GIF videos provide direct visual previews of the UAV motion and policy execution inside the README.
 
 ### 3.1 Media Folder Layout
 
-Place the screenshots and videos in the repository root as follows:
+Place the screenshots and GIF videos in the repository root as follows:
 
 ```text
 images/
@@ -98,15 +98,18 @@ images/
 └── Screenshot from 2026-05-19 19-06-59.png
 
 videos/
-├── simulation_demo_01.mp4
-├── simulation_demo_02.mp4
-├── simulation_demo_03.mp4
-├── simulation_demo_04.mp4
-├── Screencast from 05-19-2026 06:56:55 PM.mp4   # optional original converted name
-├── Screencast from 05-19-2026 06:59:54 PM.mp4   # optional original converted name
-├── Screencast from 05-19-2026 07:03:18 PM.mp4   # optional original converted name
-└── Screencast from 05-19-2026 07:06:05 PM.mp4   # optional original converted name
+├── simulation_demo_01.gif
+├── simulation_demo_02.gif
+├── simulation_demo_03.gif
+├── simulation_demo_04.gif
+├── simulation_demo_01.mp4       # optional playable source video
+├── simulation_demo_02.mp4       # optional playable source video
+├── simulation_demo_03.mp4       # optional playable source video
+└── simulation_demo_04.mp4       # optional playable source video
 ```
+
+> GitHub README pages do not reliably render local MP4 files with HTML `<video>` tags.
+> Therefore, this README uses GIF files for direct in-page visualization.
 
 ### 3.2 Simulation Rendering Screenshots
 
@@ -121,85 +124,63 @@ videos/
 </tr>
 </table>
 
-### 3.3 Simulation Videos
+### 3.3 Simulation GIF Videos
 
-The repository keeps all simulation videos inside the same `videos/` folder.
-The README uses direct HTML video blocks so the videos appear inline and can be played from the page.
+The following GIF files are shown directly in the README.
+Keep these files inside the `videos/` folder with the exact names shown below.
 
-Required video files:
+#### Simulation video 1: UAV inspection run
 
-```text
-videos/simulation_demo_01.mp4
-videos/simulation_demo_02.mp4
-videos/simulation_demo_03.mp4
-videos/simulation_demo_04.mp4
-```
+![Simulation video 1: UAV inspection run](videos/simulation_demo_01.gif)
 
-These MP4 files should be encoded using H.264 with even video width/height.
-The recommended conversion command is:
+#### Simulation video 2: policy execution view
 
-```bash
-cd videos
+![Simulation video 2: policy execution view](videos/simulation_demo_02.gif)
 
-for f in *.webm; do
-  ffmpeg -i "$f" \
-    -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" \
-    -c:v libx264 -pix_fmt yuv420p -movflags +faststart \
-    "${f%.webm}.mp4"
-done
-```
+#### Simulation video 3: route-following behavior
 
-> **Important:** Some Markdown viewers, including some GitHub views, may block local inline video playback.
-> This README is written for direct video display, but if a platform does not render `<video>` tags, use GIF previews or upload the MP4 files as GitHub release/assets.
+![Simulation video 3: route-following behavior](videos/simulation_demo_03.gif)
 
-<p><b>Simulation video 1: UAV inspection run</b></p>
+#### Simulation video 4: final rendering sequence
 
-<video width="100%" controls preload="metadata">
-  <source src="videos/simulation_demo_01.mp4" type="video/mp4">
-</video>
-
-<p><b>Simulation video 2: policy execution view</b></p>
-
-<video width="100%" controls preload="metadata">
-  <source src="videos/simulation_demo_02.mp4" type="video/mp4">
-</video>
-
-<p><b>Simulation video 3: route-following behavior</b></p>
-
-<video width="100%" controls preload="metadata">
-  <source src="videos/simulation_demo_03.mp4" type="video/mp4">
-</video>
-
-<p><b>Simulation video 4: final rendering sequence</b></p>
-
-<video width="100%" controls preload="metadata">
-  <source src="videos/simulation_demo_04.mp4" type="video/mp4">
-</video>
+![Simulation video 4: final rendering sequence](videos/simulation_demo_04.gif)
 
 ### 3.4 Add Media Files to the Repository
 
 If the media files are currently stored in local folders named `images` and `videos`, copy them into the repository root:
 
 ```bash
-cd ~/IsaacLab
+cd ~/Desktop/drone
 mkdir -p images videos
 
-# Example: copy media from your working folders into the repository root.
-# Update the source paths if your files are stored elsewhere.
+# Screenshots
 cp /path/to/images/*.png images/ 2>/dev/null || true
+
+# GIF videos and optional MP4 versions
+cp /path/to/videos/*.gif videos/ 2>/dev/null || true
 cp /path/to/videos/*.mp4 videos/ 2>/dev/null || true
 
 ls -lh images/
 ls -lh videos/
 ```
 
-For GitHub release or review submission, keep the simplified filenames unchanged so that all Markdown links above remain valid:
+The required GIF names for direct README display are:
 
 ```text
-simulation_demo_01.mp4
-simulation_demo_02.mp4
-simulation_demo_03.mp4
-simulation_demo_04.mp4
+videos/simulation_demo_01.gif
+videos/simulation_demo_02.gif
+videos/simulation_demo_03.gif
+videos/simulation_demo_04.gif
+```
+
+If your GIFs have different names, rename them:
+
+```bash
+cd ~/Desktop/drone/videos
+mv "your_first_file.gif"  simulation_demo_01.gif
+mv "your_second_file.gif" simulation_demo_02.gif
+mv "your_third_file.gif"  simulation_demo_03.gif
+mv "your_fourth_file.gif" simulation_demo_04.gif
 ```
 
 ---
@@ -217,7 +198,7 @@ IsaacLab/
 │           ├── models/                        # Saved PPO / transfer models
 │           └── logs/                          # Isaac Lab / PPO logs
 ├── images/                                   # Simulation rendering screenshots used in README
-├── videos/                                   # Simulation screen recordings used in README
+├── videos/                                   # Simulation GIF videos and optional MP4 files used in README
 └── README.md
 
 ~/uav_inspection/
@@ -1075,8 +1056,6 @@ After the complete pipeline, the following files/folders should exist:
 ~/uav_inspection/metrics/corrected_eval_only_result_table_final.csv
 ~/uav_inspection/metrics/best_episode.txt
 ~/uav_inspection/paper_selected_figures/
-~/IsaacLab/images/
-~/IsaacLab/videos/
 ~/uav_inspection/paper/
 ~/uav_inspection/paper_final_compact.zip
 ```
