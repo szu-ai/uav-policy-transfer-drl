@@ -124,7 +124,9 @@ videos/
 ### 3.3 Simulation Videos
 
 The repository keeps all simulation videos inside the same `videos/` folder.
-For README display, the recommended files are the simplified MP4 files:
+The README uses direct HTML video blocks so the videos appear inline and can be played from the page.
+
+Required video files:
 
 ```text
 videos/simulation_demo_01.mp4
@@ -133,35 +135,46 @@ videos/simulation_demo_03.mp4
 videos/simulation_demo_04.mp4
 ```
 
-These MP4 files should be encoded using H.264 with an even video height/width.
-This format is more reliable for GitHub and browser-based Markdown viewers than raw `.webm` files.
+These MP4 files should be encoded using H.264 with even video width/height.
+The recommended conversion command is:
 
-> **Note:** Some Markdown viewers may not auto-play embedded videos.
-> If a video does not render directly, click/open the corresponding `.mp4` file from the `videos/` folder.
+```bash
+cd videos
+
+for f in *.webm; do
+  ffmpeg -i "$f" \
+    -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" \
+    -c:v libx264 -pix_fmt yuv420p -movflags +faststart \
+    "${f%.webm}.mp4"
+done
+```
+
+> **Important:** Some Markdown viewers, including some GitHub views, may block local inline video playback.
+> This README is written for direct video display, but if a platform does not render `<video>` tags, use GIF previews or upload the MP4 files as GitHub release/assets.
 
 <p><b>Simulation video 1: UAV inspection run</b></p>
 
-<video src="videos/simulation_demo_01.mp4" controls width="100%"></video>
-
-[Open simulation video 1](videos/simulation_demo_01.mp4)
+<video width="100%" controls preload="metadata">
+  <source src="videos/simulation_demo_01.mp4" type="video/mp4">
+</video>
 
 <p><b>Simulation video 2: policy execution view</b></p>
 
-<video src="videos/simulation_demo_02.mp4" controls width="100%"></video>
-
-[Open simulation video 2](videos/simulation_demo_02.mp4)
+<video width="100%" controls preload="metadata">
+  <source src="videos/simulation_demo_02.mp4" type="video/mp4">
+</video>
 
 <p><b>Simulation video 3: route-following behavior</b></p>
 
-<video src="videos/simulation_demo_03.mp4" controls width="100%"></video>
-
-[Open simulation video 3](videos/simulation_demo_03.mp4)
+<video width="100%" controls preload="metadata">
+  <source src="videos/simulation_demo_03.mp4" type="video/mp4">
+</video>
 
 <p><b>Simulation video 4: final rendering sequence</b></p>
 
-<video src="videos/simulation_demo_04.mp4" controls width="100%"></video>
-
-[Open simulation video 4](videos/simulation_demo_04.mp4)
+<video width="100%" controls preload="metadata">
+  <source src="videos/simulation_demo_04.mp4" type="video/mp4">
+</video>
 
 ### 3.4 Add Media Files to the Repository
 
