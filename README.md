@@ -159,22 +159,6 @@ This format is more reliable for GitHub README pages than embedding local MP4 fi
 </tr>
 </table>
 
-### 3.4 Create Preview Images from MP4 Videos
-
-If you need to regenerate the clickable preview screenshots, run:
-
-```bash
-cd ~/Desktop/drone
-
-for f in videos/simulation_demo_*.mp4; do
-  base=$(basename "$f" .mp4)
-  ffmpeg -y -ss 00:00:02 -i "$f"     -frames:v 1 -vf "scale=960:-1"     "videos/${base}_preview.png"
-done
-
-ls -lh videos/*_preview.png
-```
-
-For a cleaner preview with a play button overlay, you can use the provided preview PNGs generated from the uploaded MP4 files.
 
 ### 3.5 Add Media Files to the Repository
 
