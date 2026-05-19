@@ -80,15 +80,16 @@ Paper metrics, figures, selected episodes, and compact result package
 
 ---
 
-## 3. Simulation Rendering Screenshots and GIF Videos
+## 3. Simulation Rendering Screenshots and Videos
 
 This repository includes simulation-rendering media captured from the Isaac Sim / Isaac Lab experiments.
 The screenshots show the UAV inspection scene, route-following behavior, industrial/power-plant rendering, and visual inspection environment.
-The GIF videos provide direct visual previews of the UAV motion and policy execution inside the README.
+The video previews below use static screenshots extracted from each MP4 file.
+Click any preview image to open and play the corresponding video.
 
 ### 3.1 Media Folder Layout
 
-Place the screenshots and GIF videos in the repository root as follows:
+Place the screenshots, video preview images, and MP4 videos in the repository root as follows:
 
 ```text
 images/
@@ -98,18 +99,15 @@ images/
 └── Screenshot from 2026-05-19 19-06-59.png
 
 videos/
-├── simulation_demo_01.gif
-├── simulation_demo_02.gif
-├── simulation_demo_03.gif
-├── simulation_demo_04.gif
-├── simulation_demo_01.mp4       # optional playable source video
-├── simulation_demo_02.mp4       # optional playable source video
-├── simulation_demo_03.mp4       # optional playable source video
-└── simulation_demo_04.mp4       # optional playable source video
+├── simulation_demo_01.mp4
+├── simulation_demo_01_preview.png
+├── simulation_demo_02.mp4
+├── simulation_demo_02_preview.png
+├── simulation_demo_03.mp4
+├── simulation_demo_03_preview.png
+├── simulation_demo_04.mp4
+└── simulation_demo_04_preview.png
 ```
-
-> GitHub README pages do not reliably render local MP4 files with HTML `<video>` tags.
-> Therefore, this README uses GIF files for direct in-page visualization.
 
 ### 3.2 Simulation Rendering Screenshots
 
@@ -124,63 +122,85 @@ videos/
 </tr>
 </table>
 
-### 3.3 Simulation GIF Videos
+### 3.3 Simulation Video Previews
 
-The following GIF files are shown directly in the README.
-Keep these files inside the `videos/` folder with the exact names shown below.
+The following previews are clickable screenshots.
+Click a preview image to open the corresponding MP4 video from the `videos/` folder.
+This format is more reliable for GitHub README pages than embedding local MP4 files with HTML video tags.
 
-#### Simulation video 1: UAV inspection run
+<table>
+<tr>
+<td align="center">
+<a href="videos/simulation_demo_01.mp4">
+<img src="videos/simulation_demo_01_preview.png" width="100%" alt="Simulation video 1: UAV inspection run"/>
+</a>
+<br/><sub><b>Simulation video 1:</b> UAV inspection run</sub>
+</td>
+<td align="center">
+<a href="videos/simulation_demo_02.mp4">
+<img src="videos/simulation_demo_02_preview.png" width="100%" alt="Simulation video 2: policy execution view"/>
+</a>
+<br/><sub><b>Simulation video 2:</b> policy execution view</sub>
+</td>
+</tr>
+<tr>
+<td align="center">
+<a href="videos/simulation_demo_03.mp4">
+<img src="videos/simulation_demo_03_preview.png" width="100%" alt="Simulation video 3: route-following behavior"/>
+</a>
+<br/><sub><b>Simulation video 3:</b> route-following behavior</sub>
+</td>
+<td align="center">
+<a href="videos/simulation_demo_04.mp4">
+<img src="videos/simulation_demo_04_preview.png" width="100%" alt="Simulation video 4: final rendering sequence"/>
+</a>
+<br/><sub><b>Simulation video 4:</b> final rendering sequence</sub>
+</td>
+</tr>
+</table>
 
-![Simulation video 1: UAV inspection run](videos/simulation_demo_01.gif)
+### 3.4 Create Preview Images from MP4 Videos
 
-#### Simulation video 2: policy execution view
-
-![Simulation video 2: policy execution view](videos/simulation_demo_02.gif)
-
-#### Simulation video 3: route-following behavior
-
-![Simulation video 3: route-following behavior](videos/simulation_demo_03.gif)
-
-#### Simulation video 4: final rendering sequence
-
-![Simulation video 4: final rendering sequence](videos/simulation_demo_04.gif)
-
-### 3.4 Add Media Files to the Repository
-
-If the media files are currently stored in local folders named `images` and `videos`, copy them into the repository root:
+If you need to regenerate the clickable preview screenshots, run:
 
 ```bash
 cd ~/Desktop/drone
-mkdir -p images videos
 
-# Screenshots
-cp /path/to/images/*.png images/ 2>/dev/null || true
+for f in videos/simulation_demo_*.mp4; do
+  base=$(basename "$f" .mp4)
+  ffmpeg -y -ss 00:00:02 -i "$f"     -frames:v 1 -vf "scale=960:-1"     "videos/${base}_preview.png"
+done
 
-# GIF videos and optional MP4 versions
-cp /path/to/videos/*.gif videos/ 2>/dev/null || true
-cp /path/to/videos/*.mp4 videos/ 2>/dev/null || true
+ls -lh videos/*_preview.png
+```
+
+For a cleaner preview with a play button overlay, you can use the provided preview PNGs generated from the uploaded MP4 files.
+
+### 3.5 Add Media Files to the Repository
+
+If the media files are currently stored in local folders named `images` and `videos`, keep them in the repository root:
+
+```bash
+cd ~/Desktop/drone
 
 ls -lh images/
 ls -lh videos/
 ```
 
-The required GIF names for direct README display are:
-
-```text
-videos/simulation_demo_01.gif
-videos/simulation_demo_02.gif
-videos/simulation_demo_03.gif
-videos/simulation_demo_04.gif
-```
-
-If your GIFs have different names, rename them:
+Before pushing to GitHub, confirm these files exist:
 
 ```bash
-cd ~/Desktop/drone/videos
-mv "your_first_file.gif"  simulation_demo_01.gif
-mv "your_second_file.gif" simulation_demo_02.gif
-mv "your_third_file.gif"  simulation_demo_03.gif
-mv "your_fourth_file.gif" simulation_demo_04.gif
+ls -lh videos/simulation_demo_01.mp4 videos/simulation_demo_01_preview.png
+ls -lh videos/simulation_demo_02.mp4 videos/simulation_demo_02_preview.png
+ls -lh videos/simulation_demo_03.mp4 videos/simulation_demo_03_preview.png
+ls -lh videos/simulation_demo_04.mp4 videos/simulation_demo_04_preview.png
+```
+
+Then commit the README, screenshots, preview images, and MP4 videos:
+
+```bash
+git add README.md images/ videos/
+git commit -m "Add simulation screenshots and clickable video previews"
 ```
 
 ---
@@ -198,7 +218,7 @@ IsaacLab/
 │           ├── models/                        # Saved PPO / transfer models
 │           └── logs/                          # Isaac Lab / PPO logs
 ├── images/                                   # Simulation rendering screenshots used in README
-├── videos/                                   # Simulation GIF videos and optional MP4 files used in README
+├── videos/                                   # Simulation screen recordings used in README
 └── README.md
 
 ~/uav_inspection/
@@ -872,8 +892,8 @@ fi
 cp op_cbrs/op_cbrs_library.json paper/05_reproducibility/
 cp ~/IsaacLab/source/standalone/npp_drone_inspection/drone.py paper/06_code/drone_final.py
 rsync -a paper_selected_figures/ paper/01_selected_figures/ || true
-rsync -a ~/IsaacLab/images/ paper/07_simulation_media/images/ 2>/dev/null || true
-rsync -a ~/IsaacLab/videos/ paper/07_simulation_media/videos/ 2>/dev/null || true
+rsync -a ~/Desktop/drone/images/ paper/07_simulation_media/images/ 2>/dev/null || true
+rsync -a ~/Desktop/drone/videos/ paper/07_simulation_media/videos/ 2>/dev/null || true
 
 export BEST_EP=$(cat ~/uav_inspection/metrics/best_episode.txt)
 
