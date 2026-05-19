@@ -98,10 +98,14 @@ images/
 └── Screenshot from 2026-05-19 19-06-59.png
 
 videos/
-├── Screencast from 05-19-2026 06:56:55 PM.webm
-├── Screencast from 05-19-2026 06:59:54 PM.webm
-├── Screencast from 05-19-2026 07:03:18 PM.webm
-└── Screencast from 05-19-2026 07:06:05 PM.webm
+├── simulation_demo_01.mp4
+├── simulation_demo_02.mp4
+├── simulation_demo_03.mp4
+├── simulation_demo_04.mp4
+├── Screencast from 05-19-2026 06:56:55 PM.mp4   # optional original converted name
+├── Screencast from 05-19-2026 06:59:54 PM.mp4   # optional original converted name
+├── Screencast from 05-19-2026 07:03:18 PM.mp4   # optional original converted name
+└── Screencast from 05-19-2026 07:06:05 PM.mp4   # optional original converted name
 ```
 
 ### 3.2 Simulation Rendering Screenshots
@@ -119,20 +123,45 @@ videos/
 
 ### 3.3 Simulation Videos
 
-The following videos can be viewed directly in GitHub-compatible Markdown viewers that support HTML video tags.
-If the videos do not render in a specific viewer, open the files manually from the `videos/` folder.
+The repository keeps all simulation videos inside the same `videos/` folder.
+For README display, the recommended files are the simplified MP4 files:
+
+```text
+videos/simulation_demo_01.mp4
+videos/simulation_demo_02.mp4
+videos/simulation_demo_03.mp4
+videos/simulation_demo_04.mp4
+```
+
+These MP4 files should be encoded using H.264 with an even video height/width.
+This format is more reliable for GitHub and browser-based Markdown viewers than raw `.webm` files.
+
+> **Note:** Some Markdown viewers may not auto-play embedded videos.
+> If a video does not render directly, click/open the corresponding `.mp4` file from the `videos/` folder.
 
 <p><b>Simulation video 1: UAV inspection run</b></p>
-<video src="videos/Screencast%20from%2005-19-2026%2006%3A56%3A55%20PM.webm" controls width="100%"></video>
+
+<video src="videos/simulation_demo_01.mp4" controls width="100%"></video>
+
+[Open simulation video 1](videos/simulation_demo_01.mp4)
 
 <p><b>Simulation video 2: policy execution view</b></p>
-<video src="videos/Screencast%20from%2005-19-2026%2006%3A59%3A54%20PM.webm" controls width="100%"></video>
+
+<video src="videos/simulation_demo_02.mp4" controls width="100%"></video>
+
+[Open simulation video 2](videos/simulation_demo_02.mp4)
 
 <p><b>Simulation video 3: route-following behavior</b></p>
-<video src="videos/Screencast%20from%2005-19-2026%2007%3A03%3A18%20PM.webm" controls width="100%"></video>
+
+<video src="videos/simulation_demo_03.mp4" controls width="100%"></video>
+
+[Open simulation video 3](videos/simulation_demo_03.mp4)
 
 <p><b>Simulation video 4: final rendering sequence</b></p>
-<video src="videos/Screencast%20from%2005-19-2026%2007%3A06%3A05%20PM.webm" controls width="100%"></video>
+
+<video src="videos/simulation_demo_04.mp4" controls width="100%"></video>
+
+[Open simulation video 4](videos/simulation_demo_04.mp4)
 
 ### 3.4 Add Media Files to the Repository
 
@@ -145,13 +174,20 @@ mkdir -p images videos
 # Example: copy media from your working folders into the repository root.
 # Update the source paths if your files are stored elsewhere.
 cp /path/to/images/*.png images/ 2>/dev/null || true
-cp /path/to/videos/*.webm videos/ 2>/dev/null || true
+cp /path/to/videos/*.mp4 videos/ 2>/dev/null || true
 
 ls -lh images/
 ls -lh videos/
 ```
 
-For GitHub release or review submission, keep the filenames unchanged so that all Markdown links above remain valid.
+For GitHub release or review submission, keep the simplified filenames unchanged so that all Markdown links above remain valid:
+
+```text
+simulation_demo_01.mp4
+simulation_demo_02.mp4
+simulation_demo_03.mp4
+simulation_demo_04.mp4
+```
 
 ---
 
@@ -840,8 +876,7 @@ else
 fi
 
 cp op_cbrs/op_cbrs_library.json paper/05_reproducibility/
-cp ~/IsaacLab/source/standalone/npp_drone_inspection/drone.py paper/06_code/
-paper/07_simulation_media/drone_final.py
+cp ~/IsaacLab/source/standalone/npp_drone_inspection/drone.py paper/06_code/drone_final.py
 rsync -a paper_selected_figures/ paper/01_selected_figures/ || true
 rsync -a ~/IsaacLab/images/ paper/07_simulation_media/images/ 2>/dev/null || true
 rsync -a ~/IsaacLab/videos/ paper/07_simulation_media/videos/ 2>/dev/null || true
@@ -1027,6 +1062,8 @@ After the complete pipeline, the following files/folders should exist:
 ~/uav_inspection/metrics/corrected_eval_only_result_table_final.csv
 ~/uav_inspection/metrics/best_episode.txt
 ~/uav_inspection/paper_selected_figures/
+~/IsaacLab/images/
+~/IsaacLab/videos/
 ~/uav_inspection/paper/
 ~/uav_inspection/paper_final_compact.zip
 ```
@@ -1041,6 +1078,7 @@ paper/03_metrics_csv/
 paper/04_models/
 paper/05_reproducibility/
 paper/06_code/
+paper/07_simulation_media/
 ```
 
 ---
