@@ -84,109 +84,7 @@ Final target-domain evaluation and result visualization
 
 ---
 
-## 3. Simulation Environments and Visual Results
-
-The experiments are conducted in Isaac Sim / Isaac Lab with source and target inspection domains.
-The figures below summarize route layout, scene rendering, proxy-VSLAM behavior, feature-density heatmaps, trajectory response, OP-CBRS potential behavior, and normalized transfer performance.
-
-### 3.1 Source and Target Domain Visualization
-
-<p align="center">
-  <img src="figs/2.png" width="100%" alt="Isaac Sim source and target domain visualization with route, scene, VSLAM trajectory, and visual-feature heatmap"/>
-</p>
-
-<p align="center"><b>Fig. 2.</b> Source-domain `e1` and target-domain `e2` visualization, including coverage paths, Isaac Sim scenes, proxy-VSLAM trajectories, and feature-density heatmaps.</p>
-
-### 3.2 Fuzzy-Enhanced OSD Decision-Making
-
-<p align="center">
-  <img src="figs/3.png" width="100%" alt="Fuzzy-enhanced OSD trajectory, adaptive speed response, feature response, and dual-camera heatmap sequence"/>
-</p>
-
-<p align="center"><b>Fig. 3.</b> Fuzzy-enhanced OSD decision-making in `e2`, showing adaptive trajectory, speed response, visual-feature response, and dual-camera heatmap sequence.</p>
-
-### 3.3 OP-CBRS Potential and Transfer Results
-
-<table>
-<tr>
-<td align="center" width="33%">
-<img src="figs/4.png" width="100%" alt="Relative OP-CBRS potential values for normal and drift-prone states"/>
-<br/><sub><b>Fig. 4.</b> OP-CBRS potential distinguishes normal and drift-prone states.</sub>
-</td>
-<td align="center" width="33%">
-<img src="figs/5.png" width="100%" alt="Normalized transfer performance in e2"/>
-<br/><sub><b>Fig. 5.</b> Normalized target-domain transfer performance.</sub>
-</td>
-<td align="center" width="33%">
-<img src="figs/6.png" width="100%" alt="Original reward and fuzzy-enhanced OP-CBRS potential"/>
-<br/><sub><b>Fig. 6.</b> Fuzzy-enhanced potential provides earlier pre-drift response.</sub>
-</td>
-</tr>
-</table>
-
----
-
-## 4. Key Results
-
-### 4.1 Target-Domain `e2` Evaluation
-
-The target-domain evaluation uses 50 episodes per policy.
-All policies complete the target route, while the transferred policy achieves the best time-energy efficiency.
-
-| Policy | Episodes | Psucc (%) | τavg (s) | Dinc/Ep. | Aloc (%) | Econ (Wh) | Speed (m/s) |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| Uniform-Speed-0.25 m/s | 50 | 100.00 | 114.46 | 1.28 | 99.82 | 6.27 | 0.718 |
-| Uniform-Speed-0.50 m/s | 50 | 100.00 | 104.46 | 1.36 | 99.83 | 5.82 | 0.788 |
-| Uniform-Speed-0.75 m/s | 50 | 100.00 | 96.57 | 1.14 | 99.81 | 5.47 | 0.851 |
-| Uniform-Speed-1.00 m/s | 50 | 100.00 | 94.15 | 0.90 | 99.76 | 5.37 | 0.873 |
-| Analytic OSD+Fuzzy+OP-CBRS | 50 | 100.00 | 94.15 | 0.90 | 99.76 | 5.37 | 0.873 |
-| **Transferred OSD+Fuzzy+OP-CBRS** | **50** | **100.00** | **92.69** | **1.20** | **99.79** | **5.31** | **0.886** |
-
-### 4.2 Welch t-Test Against Same-Protocol `e2` Baselines
-
-The transferred policy is statistically faster and more energy efficient than the analytic OSD and uniform 1.00 m/s baselines.
-The drift difference is not statistically significant against the fastest baselines, so the claim is limited to improved time-energy efficiency under full route completion.
-
-| Compared baseline | Δτ (s) | pτ | ΔE (Wh) | pE | ΔDinc/Ep. | pD |
-|---|---:|---:|---:|---:|---:|---:|
-| Uniform-Speed-0.25 m/s | -21.78 | < 10^-50 | -0.97 | < 10^-50 | -0.08 | 0.693 |
-| Uniform-Speed-0.50 m/s | -11.77 | < 10^-35 | -0.52 | < 10^-35 | -0.16 | 0.507 |
-| Uniform-Speed-0.75 m/s | -3.88 | 9.60×10^-10 | -0.17 | 7.16×10^-10 | 0.06 | 0.782 |
-| Uniform-Speed-1.00 m/s | -1.46 | 0.0196 | -0.064 | 0.0162 | 0.30 | 0.126 |
-| Analytic OSD+Fuzzy+OP-CBRS | -1.46 | 0.0196 | -0.064 | 0.0162 | 0.30 | 0.126 |
-
-### 4.3 Ablation Study
-
-The ablation confirms that OP-CBRS is essential for route completion and that OSD provides an explicit speed-regulation mechanism for safety-aware adaptation.
-
-| Configuration | Psucc (%) | τavg (s) | Dinc/Ep. | Aloc (%) | Econ (Wh) | WP |
-|---|---:|---:|---:|---:|---:|---:|
-| Uniform-speed library (mean) | 100.00 | 102.41 | 1.17 | 99.81 | 5.74 | 12/12 |
-| Analytic OSD+Fuzzy+OP-CBRS | 100.00 | 94.15 | 0.90 | 99.76 | 5.37 | 12/12 |
-| PPO+OSD+Fuzzy w/o OP-CBRS | 0.00 | 72.00 | 0.96 | 99.07 | 4.04 | 9.58/12 |
-| PPO+Fuzzy+OP-CBRS w/o OSD | 100.00 | 88.08 | 0.92 | 99.70 | 5.17 | 12/12 |
-| **PPO Sim2Sim Transfer + OP-CBRS** | **100.00** | **92.69** | **1.20** | **99.79** | **5.31** | **12/12** |
-
-### 4.4 Coverage and OP-CBRS Consistency
-
-| Run | Waypoints | C | μcvg | Lib. hit | Alerts |
-|---|---:|---:|---:|---:|---:|
-| Source `e1` training | 16/16 | 0.500 | 0.393 | 0.550 | 31.20 |
-| Transfer `e2` tuning | 12/12 | 0.415 | 0.290 | 0.540 | 2.08 |
-| Transfer `e2` evaluation | 12/12 | 0.415 | 0.290 | 0.600 | 1.78 |
-
-### 4.5 Source and Transfer Summary
-
-| Run | Domain | Episodes | Waypoints | Psucc (%) | τavg (s) | Aloc (%) | Econ (Wh) |
-|---|---|---:|---:|---:|---:|---:|---:|
-| Source PPO training | `e1` | 291 | 16/16 | 100.00 | 96.08 | 97.67 | 5.33 |
-| Transfer fine-tuning | `e2` | 50 | 12/12 | 100.00 | 94.01 | 99.81 | 5.36 |
-| Final transferred evaluation | `e2` | 50 | 12/12 | 100.00 | 92.69 | 99.79 | 5.31 |
-| Best selected episode | `e2` | 1 | 12/12 | 100.00 | 85.20 | 100.00 | 4.99 |
-
----
-
-## 5. Implementation Parameters
+## 3. Implementation Parameters
 
 | Category | Parameter / value | Description |
 |---|---|---|
@@ -202,7 +100,7 @@ The ablation confirms that OP-CBRS is essential for route completion and that OS
 
 ---
 
-## 6. Repository Layout
+## 4. Repository Layout
 
 ```text
 IsaacLab/
@@ -234,7 +132,7 @@ IsaacLab/
 
 ---
 
-## 7. Environment Requirements
+## 5. Environment Requirements
 
 ### Required
 
@@ -266,7 +164,7 @@ Do **not** run `drone.py` with a normal system Python interpreter.
 
 ---
 
-## 8. Code Tour
+## 6. Code Tour
 
 | Module / class | Purpose |
 |---|---|
@@ -277,6 +175,108 @@ Do **not** run `drone.py` with a normal system Python interpreter.
 | Proxy-VSLAM logic | Simulates GPS-denied pose noise, yaw noise, velocity noise, drift, and tracking loss. |
 | OP-CBRS library | Stores and selects fuzzy-binned potential functions from offline uniform-speed rollouts. |
 | PPO / transfer modes | Train source OSD policy, fine-tune in target domain, and evaluate baselines or transferred policies. |
+
+---
+
+## 7. Simulation Environments and Visual Results
+
+The experiments are conducted in Isaac Sim / Isaac Lab with source and target inspection domains.
+The figures below summarize route layout, scene rendering, proxy-VSLAM behavior, feature-density heatmaps, trajectory response, OP-CBRS potential behavior, and normalized transfer performance.
+
+### 7.1 Source and Target Domain Visualization
+
+<p align="center">
+  <img src="figs/2.png" width="100%" alt="Isaac Sim source and target domain visualization with route, scene, VSLAM trajectory, and visual-feature heatmap"/>
+</p>
+
+<p align="center"><b>Fig. 2.</b> Source-domain `e1` and target-domain `e2` visualization, including coverage paths, Isaac Sim scenes, proxy-VSLAM trajectories, and feature-density heatmaps.</p>
+
+### 7.2 Fuzzy-Enhanced OSD Decision-Making
+
+<p align="center">
+  <img src="figs/3.png" width="100%" alt="Fuzzy-enhanced OSD trajectory, adaptive speed response, feature response, and dual-camera heatmap sequence"/>
+</p>
+
+<p align="center"><b>Fig. 3.</b> Fuzzy-enhanced OSD decision-making in `e2`, showing adaptive trajectory, speed response, visual-feature response, and dual-camera heatmap sequence.</p>
+
+### 7.3 OP-CBRS Potential and Transfer Results
+
+<table>
+<tr>
+<td align="center" width="33%">
+<img src="figs/4.png" width="100%" alt="Relative OP-CBRS potential values for normal and drift-prone states"/>
+<br/><sub><b>Fig. 4.</b> OP-CBRS potential distinguishes normal and drift-prone states.</sub>
+</td>
+<td align="center" width="33%">
+<img src="figs/5.png" width="100%" alt="Normalized transfer performance in e2"/>
+<br/><sub><b>Fig. 5.</b> Normalized target-domain transfer performance.</sub>
+</td>
+<td align="center" width="33%">
+<img src="figs/6.png" width="100%" alt="Original reward and fuzzy-enhanced OP-CBRS potential"/>
+<br/><sub><b>Fig. 6.</b> Fuzzy-enhanced potential provides earlier pre-drift response.</sub>
+</td>
+</tr>
+</table>
+
+---
+
+## 8. Key Results
+
+### 8.1 Target-Domain `e2` Evaluation
+
+The target-domain evaluation uses 50 episodes per policy.
+All policies complete the target route, while the transferred policy achieves the best time-energy efficiency.
+
+| Policy | Episodes | Psucc (%) | τavg (s) | Dinc/Ep. | Aloc (%) | Econ (Wh) | Speed (m/s) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Uniform-Speed-0.25 m/s | 50 | 100.00 | 114.46 | 1.28 | 99.82 | 6.27 | 0.718 |
+| Uniform-Speed-0.50 m/s | 50 | 100.00 | 104.46 | 1.36 | 99.83 | 5.82 | 0.788 |
+| Uniform-Speed-0.75 m/s | 50 | 100.00 | 96.57 | 1.14 | 99.81 | 5.47 | 0.851 |
+| Uniform-Speed-1.00 m/s | 50 | 100.00 | 94.15 | 0.90 | 99.76 | 5.37 | 0.873 |
+| Analytic OSD+Fuzzy+OP-CBRS | 50 | 100.00 | 94.15 | 0.90 | 99.76 | 5.37 | 0.873 |
+| **Transferred OSD+Fuzzy+OP-CBRS** | **50** | **100.00** | **92.69** | **1.20** | **99.79** | **5.31** | **0.886** |
+
+### 8.2 Welch t-Test Against Same-Protocol `e2` Baselines
+
+The transferred policy is statistically faster and more energy efficient than the analytic OSD and uniform 1.00 m/s baselines.
+The drift difference is not statistically significant against the fastest baselines, so the claim is limited to improved time-energy efficiency under full route completion.
+
+| Compared baseline | Δτ (s) | pτ | ΔE (Wh) | pE | ΔDinc/Ep. | pD |
+|---|---:|---:|---:|---:|---:|---:|
+| Uniform-Speed-0.25 m/s | -21.78 | < 10^-50 | -0.97 | < 10^-50 | -0.08 | 0.693 |
+| Uniform-Speed-0.50 m/s | -11.77 | < 10^-35 | -0.52 | < 10^-35 | -0.16 | 0.507 |
+| Uniform-Speed-0.75 m/s | -3.88 | 9.60×10^-10 | -0.17 | 7.16×10^-10 | 0.06 | 0.782 |
+| Uniform-Speed-1.00 m/s | -1.46 | 0.0196 | -0.064 | 0.0162 | 0.30 | 0.126 |
+| Analytic OSD+Fuzzy+OP-CBRS | -1.46 | 0.0196 | -0.064 | 0.0162 | 0.30 | 0.126 |
+
+### 8.3 Ablation Study
+
+The ablation confirms that OP-CBRS is essential for route completion and that OSD provides an explicit speed-regulation mechanism for safety-aware adaptation.
+
+| Configuration | Psucc (%) | τavg (s) | Dinc/Ep. | Aloc (%) | Econ (Wh) | WP |
+|---|---:|---:|---:|---:|---:|---:|
+| Uniform-speed library (mean) | 100.00 | 102.41 | 1.17 | 99.81 | 5.74 | 12/12 |
+| Analytic OSD+Fuzzy+OP-CBRS | 100.00 | 94.15 | 0.90 | 99.76 | 5.37 | 12/12 |
+| PPO+OSD+Fuzzy w/o OP-CBRS | 0.00 | 72.00 | 0.96 | 99.07 | 4.04 | 9.58/12 |
+| PPO+Fuzzy+OP-CBRS w/o OSD | 100.00 | 88.08 | 0.92 | 99.70 | 5.17 | 12/12 |
+| **PPO Sim2Sim Transfer + OP-CBRS** | **100.00** | **92.69** | **1.20** | **99.79** | **5.31** | **12/12** |
+
+### 8.4 Coverage and OP-CBRS Consistency
+
+| Run | Waypoints | C | μcvg | Lib. hit | Alerts |
+|---|---:|---:|---:|---:|---:|
+| Source `e1` training | 16/16 | 0.500 | 0.393 | 0.550 | 31.20 |
+| Transfer `e2` tuning | 12/12 | 0.415 | 0.290 | 0.540 | 2.08 |
+| Transfer `e2` evaluation | 12/12 | 0.415 | 0.290 | 0.600 | 1.78 |
+
+### 8.5 Source and Transfer Summary
+
+| Run | Domain | Episodes | Waypoints | Psucc (%) | τavg (s) | Aloc (%) | Econ (Wh) |
+|---|---|---:|---:|---:|---:|---:|---:|
+| Source PPO training | `e1` | 291 | 16/16 | 100.00 | 96.08 | 97.67 | 5.33 |
+| Transfer fine-tuning | `e2` | 50 | 12/12 | 100.00 | 94.01 | 99.81 | 5.36 |
+| Final transferred evaluation | `e2` | 50 | 12/12 | 100.00 | 92.69 | 99.79 | 5.31 |
+| Best selected episode | `e2` | 1 | 12/12 | 100.00 | 85.20 | 100.00 | 4.99 |
 
 ---
 
