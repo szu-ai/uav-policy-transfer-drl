@@ -80,7 +80,82 @@ Paper metrics, figures, selected episodes, and compact result package
 
 ---
 
-## 3. Repository Layout
+## 3. Simulation Rendering Screenshots and Videos
+
+This repository includes simulation-rendering media captured from the Isaac Sim / Isaac Lab experiments.
+The screenshots show the UAV inspection scene, route-following behavior, industrial/power-plant rendering, and visual inspection environment.
+The videos provide qualitative evidence of the UAV motion and policy execution during simulation runs.
+
+### 3.1 Media Folder Layout
+
+Place the screenshots and videos in the repository root as follows:
+
+```text
+images/
+├── Screenshot from 2026-05-13 21-05-19.png
+├── Screenshot from 2026-05-13 21-05-57.png
+├── Screenshot from 2026-05-19 18-58-09.png
+└── Screenshot from 2026-05-19 19-06-59.png
+
+videos/
+├── Screencast from 05-19-2026 06:56:55 PM.webm
+├── Screencast from 05-19-2026 06:59:54 PM.webm
+├── Screencast from 05-19-2026 07:03:18 PM.webm
+└── Screencast from 05-19-2026 07:06:05 PM.webm
+```
+
+### 3.2 Simulation Rendering Screenshots
+
+<table>
+<tr>
+<td align="center"><img src="images/Screenshot%20from%202026-05-13%2021-05-19.png" width="100%" alt="Rendering view 1: UAV inspection environment"/><br/><sub>Rendering view 1: UAV inspection environment</sub></td>
+<td align="center"><img src="images/Screenshot%20from%202026-05-13%2021-05-57.png" width="100%" alt="Rendering view 2: UAV route and scene geometry"/><br/><sub>Rendering view 2: UAV route and scene geometry</sub></td>
+</tr>
+<tr>
+<td align="center"><img src="images/Screenshot%20from%202026-05-19%2018-58-09.png" width="100%" alt="Rendering view 3: inspection-domain visualization"/><br/><sub>Rendering view 3: inspection-domain visualization</sub></td>
+<td align="center"><img src="images/Screenshot%20from%202026-05-19%2019-06-59.png" width="100%" alt="Rendering view 4: UAV simulation execution"/><br/><sub>Rendering view 4: UAV simulation execution</sub></td>
+</tr>
+</table>
+
+### 3.3 Simulation Videos
+
+The following videos can be viewed directly in GitHub-compatible Markdown viewers that support HTML video tags.
+If the videos do not render in a specific viewer, open the files manually from the `videos/` folder.
+
+<p><b>Simulation video 1: UAV inspection run</b></p>
+<video src="videos/Screencast%20from%2005-19-2026%2006%3A56%3A55%20PM.webm" controls width="100%"></video>
+
+<p><b>Simulation video 2: policy execution view</b></p>
+<video src="videos/Screencast%20from%2005-19-2026%2006%3A59%3A54%20PM.webm" controls width="100%"></video>
+
+<p><b>Simulation video 3: route-following behavior</b></p>
+<video src="videos/Screencast%20from%2005-19-2026%2007%3A03%3A18%20PM.webm" controls width="100%"></video>
+
+<p><b>Simulation video 4: final rendering sequence</b></p>
+<video src="videos/Screencast%20from%2005-19-2026%2007%3A06%3A05%20PM.webm" controls width="100%"></video>
+
+### 3.4 Add Media Files to the Repository
+
+If the media files are currently stored in local folders named `images` and `videos`, copy them into the repository root:
+
+```bash
+cd ~/IsaacLab
+mkdir -p images videos
+
+# Example: copy media from your working folders into the repository root.
+# Update the source paths if your files are stored elsewhere.
+cp /path/to/images/*.png images/ 2>/dev/null || true
+cp /path/to/videos/*.webm videos/ 2>/dev/null || true
+
+ls -lh images/
+ls -lh videos/
+```
+
+For GitHub release or review submission, keep the filenames unchanged so that all Markdown links above remain valid.
+
+---
+
+## 4. Repository Layout
 
 Recommended layout:
 
@@ -92,6 +167,8 @@ IsaacLab/
 │           ├── drone.py                       # Main Isaac Sim / Isaac Lab implementation
 │           ├── models/                        # Saved PPO / transfer models
 │           └── logs/                          # Isaac Lab / PPO logs
+├── images/                                   # Simulation rendering screenshots used in README
+├── videos/                                   # Simulation screen recordings used in README
 └── README.md
 
 ~/uav_inspection/
@@ -102,7 +179,7 @@ IsaacLab/
 ├── models/
 ├── op_cbrs/
 ├── paper_selected_figures/
-└── paper/                                     # Compact paper package created by pipeline
+└── paper/                                    # Compact paper package created by pipeline
 ```
 
 The main script is:
@@ -119,7 +196,7 @@ All paper-aligned outputs are written to:
 
 ---
 
-## 4. Environment Requirements
+## 5. Environment Requirements
 
 ### Required
 
@@ -151,11 +228,11 @@ Do **not** run `drone.py` with a normal system Python interpreter.
 
 ---
 
-## 5. Code Tour: `drone.py`
+## 6. Code Tour: `drone.py`
 
 The implementation is organized around the following parts.
 
-### 5.1 Argument Parser
+### 6.1 Argument Parser
 
 The `parse_args()` function defines all experiment controls, including:
 
@@ -201,7 +278,7 @@ The most important `--mode` values are:
 | `random` | Runs a random/debug policy. |
 | `train` | Generic training mode. |
 
-### 5.2 `CuvslamOdomReceiver`
+### 6.2 `CuvslamOdomReceiver`
 
 This class receives external cuVSLAM odometry for GPS-denied policy input.
 
@@ -212,7 +289,7 @@ It supports two paths:
 
 This fallback is useful when Isaac Sim Python and ROS 2 Humble use incompatible Python environments.
 
-### 5.3 `NPPDroneGymEnv`
+### 6.3 `NPPDroneGymEnv`
 
 `NPPDroneGymEnv` is the main Gymnasium environment.
 It creates the Isaac Sim world, UAV, industrial/power-plant scenes, sensors, proxy-SLAM state, route logic, rewards, and metrics.
@@ -230,7 +307,7 @@ The environment includes:
 - collision and obstacle handling,
 - paper metric logging.
 
-### 5.4 Scene and Sensor Construction
+### 6.4 Scene and Sensor Construction
 
 Important scene functions include:
 
@@ -248,7 +325,7 @@ _create_stereo_camera_prims()
 _setup_ros2_stereo_camera_graph()
 ```
 
-### 5.5 Proxy-VSLAM and cuVSLAM Support
+### 6.5 Proxy-VSLAM and cuVSLAM Support
 
 The default SLAM mode is:
 
@@ -287,7 +364,7 @@ The default cuVSLAM topics are:
 
 ---
 
-## 6. Main Output Metrics
+## 7. Main Output Metrics
 
 The script writes paper-style CSV files with episode-level and step-level statistics.
 
@@ -317,9 +394,9 @@ Important metrics include:
 
 ---
 
-## 7. Quick Start
+## 8. Quick Start
 
-### 7.1 Copy the script
+### 8.1 Copy the script
 
 Place the final script here:
 
@@ -333,14 +410,14 @@ Create the folder if needed:
 mkdir -p ~/IsaacLab/source/standalone/npp_drone_inspection
 ```
 
-### 7.2 Check the command-line interface
+### 8.2 Check the command-line interface
 
 ```bash
 cd ~/IsaacLab
 ./isaaclab.sh -p source/standalone/npp_drone_inspection/drone.py --help
 ```
 
-### 7.3 Run a short debug evaluation
+### 8.3 Run a short debug evaluation
 
 ```bash
 cd ~/IsaacLab
@@ -356,7 +433,7 @@ export DEVICE=${DEVICE:-cuda}
 
 ---
 
-## 8. Full Paper Reproduction Pipeline
+## 9. Full Paper Reproduction Pipeline
 
 The following commands reproduce the paper-style workflow step by step.
 
@@ -580,7 +657,7 @@ to:
 
 ---
 
-## 9. Build Final Paper Tables and Package
+## 10. Build Final Paper Tables and Package
 
 After Step 7, create a clean result table using only the final baseline and transfer evaluation CSV files.
 
@@ -655,7 +732,7 @@ cat ~/uav_inspection/metrics/corrected_eval_only_result_table_final.csv
 
 ---
 
-## 10. Select the Best Transferred Episode
+## 11. Select the Best Transferred Episode
 
 ```bash
 python3 - <<'PY'
@@ -701,7 +778,7 @@ PY
 
 ---
 
-## 11. Copy Selected Paper Figures
+## 12. Copy Selected Paper Figures
 
 ```bash
 export BEST_EP=$(cat ~/uav_inspection/metrics/best_episode.txt)
@@ -736,13 +813,14 @@ ls -lh ~/uav_inspection/paper_selected_figures/ || true
 
 ---
 
-## 12. Build Compact Paper Package
+## 13. Build Compact Paper Package
 
 ```bash
 cd ~/uav_inspection
 rm -rf paper
 mkdir -p paper/00_summary paper/01_selected_figures paper/02_selected_episode \
-         paper/03_metrics_csv paper/04_models paper/05_reproducibility paper/06_code
+         paper/03_metrics_csv paper/04_models paper/05_reproducibility paper/06_code \
+         paper/07_simulation_media/images paper/07_simulation_media/videos
 
 cp metrics/corrected_eval_only_result_table_final.csv paper/00_summary/
 cp metrics/best_episode.txt paper/00_summary/
@@ -762,8 +840,11 @@ else
 fi
 
 cp op_cbrs/op_cbrs_library.json paper/05_reproducibility/
-cp ~/IsaacLab/source/standalone/npp_drone_inspection/drone.py paper/06_code/drone_final.py
+cp ~/IsaacLab/source/standalone/npp_drone_inspection/drone.py paper/06_code/
+paper/07_simulation_media/drone_final.py
 rsync -a paper_selected_figures/ paper/01_selected_figures/ || true
+rsync -a ~/IsaacLab/images/ paper/07_simulation_media/images/ 2>/dev/null || true
+rsync -a ~/IsaacLab/videos/ paper/07_simulation_media/videos/ 2>/dev/null || true
 
 export BEST_EP=$(cat ~/uav_inspection/metrics/best_episode.txt)
 
@@ -814,12 +895,14 @@ rm -f paper_final_compact.zip
 zip -r paper_final_compact.zip paper
 ls -lh paper_final_compact.zip
 
-echo "DONE. Final package: ~/uav_inspection/paper_final_compact.zip"
+echo "DONE. Final package: ~/uav_inspection/paper_final_compact.zip
+~/IsaacLab/images/
+~/IsaacLab/videos/"
 ```
 
 ---
 
-## 13. One-File Pipeline Script
+## 14. One-File Pipeline Script
 
 You can save the step-by-step commands as:
 
@@ -846,9 +929,9 @@ For debugging, reduce:
 
 ---
 
-## 14. Important Configuration Notes
+## 15. Important Configuration Notes
 
-### 14.1 OSD speed range
+### 15.1 OSD speed range
 
 The paper-aligned speed range is:
 
@@ -857,7 +940,7 @@ The paper-aligned speed range is:
 --osd-vmax 1.00
 ```
 
-### 14.2 Policy/analytic blending
+### 15.2 Policy/analytic blending
 
 The scalar control can combine PPO output with an analytic fuzzy OSD shield:
 
@@ -867,7 +950,7 @@ The scalar control can combine PPO output with an analytic fuzzy OSD shield:
 --policy-analytic-blend 0.85  # final robust evaluation blend
 ```
 
-### 14.3 Route completion
+### 15.3 Route completion
 
 Evaluation and collection commands use:
 
@@ -879,7 +962,7 @@ Evaluation and collection commands use:
 
 This keeps the evaluation focused on fuzzy OSD, OP-CBRS, and Sim2Sim behavior rather than global obstacle planning.
 
-### 14.4 Domain randomization
+### 15.4 Domain randomization
 
 For deterministic collection and source evaluation:
 
@@ -895,7 +978,7 @@ For transfer/evaluation focused on target-domain policy behavior, the commands d
 
 ---
 
-## 15. Optional cuVSLAM Mode
+## 16. Optional cuVSLAM Mode
 
 The default experiments use proxy-VSLAM:
 
@@ -931,7 +1014,7 @@ If direct `rclpy` subscription is unavailable inside Isaac Sim Python, use the U
 
 ---
 
-## 16. Expected Final Outputs
+## 17. Expected Final Outputs
 
 After the complete pipeline, the following files/folders should exist:
 
@@ -962,7 +1045,7 @@ paper/06_code/
 
 ---
 
-## 17. Troubleshooting
+## 18. Troubleshooting
 
 ### Problem: `Could not import isaacsim.SimulationApp`
 
@@ -1024,7 +1107,7 @@ Use smaller debug values:
 
 ---
 
-## 18. Reproducibility Checklist
+## 19. Reproducibility Checklist
 
 Before reporting results, verify:
 
@@ -1041,7 +1124,7 @@ Before reporting results, verify:
 
 ---
 
-## 19. Citation
+## 20. Citation
 
 If this artifact is used in a publication, cite the paper:
 
@@ -1057,7 +1140,7 @@ If this artifact is used in a publication, cite the paper:
 
 ---
 
-## 20. License
+## 21. License
 
 Add the project license here before public release.
 
