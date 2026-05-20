@@ -1215,7 +1215,7 @@ ls -lh ~/uav_inspection/eval_figures_e2_transfer_final/ | head || true
 
 ---
 
-## 12. Build Final Tables and Package
+## 12. Build Tables and Package
 
 <p align="justify">After Step 7, create a clean result table using only the final baseline and transfer evaluation CSV files.</p>
 
