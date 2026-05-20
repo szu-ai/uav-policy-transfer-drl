@@ -878,7 +878,7 @@ This format is more reliable for GitHub README pages than embedding local MP4 fi
 
 
 
-## 8. Paper Figures and Visual Results
+## 8. Figures and Visual Results
 
 ### 8.1 Coverage, Localization, and Feature-Density Visualization
 
@@ -887,7 +887,7 @@ This format is more reliable for GitHub README pages than embedding local MP4 fi
 </p>
 
 <p align="center">
-  <sub><b>Figure 2.</b> Isaac Sim coverage, localization, and feature-density visualization. The top row shows the source power-plant domain <code>e1</code>, and the bottom row shows the target industrial domain <code>e2</code>. Each row includes the coverage path, Isaac Sim scene, proxy-VSLAM trajectory, and visual-feature coverage heatmap.</sub>
+  <sub> Isaac Sim coverage, localization, and feature-density visualization. The top row shows the source power-plant domain <code>e1</code>, and the bottom row shows the target industrial domain <code>e2</code>. Each row includes the coverage path, Isaac Sim scene, proxy-VSLAM trajectory, and visual-feature coverage heatmap.</sub>
 </p>
 
 ### 8.2 Fuzzy-Enhanced OSD Decision-Making
@@ -897,7 +897,7 @@ This format is more reliable for GitHub README pages than embedding local MP4 fi
 </p>
 
 <p align="center">
-  <sub><b>Figure 3.</b> Fuzzy-enhanced OSD decision-making with OP-CBRS in <code>e2</code>. The figure shows the 3D UAV inspection trajectory, adaptive speed response, visual-feature response, and dual-camera heatmap sequence.</sub>
+  <sub> Fuzzy-enhanced OSD decision-making with OP-CBRS in <code>e2</code>. The figure shows the 3D UAV inspection trajectory, adaptive speed response, visual-feature response, and dual-camera heatmap sequence.</sub>
 </p>
 
 ### 8.3 OP-CBRS Potential and Pre-Drift Behavior
@@ -907,7 +907,7 @@ This format is more reliable for GitHub README pages than embedding local MP4 fi
 </p>
 
 <p align="center">
-  <sub><b>Figure 4.</b> Relative OP-CBRS potential values for normal and drift-prone states. The normal state remains nearly stable, while the drift-prone state declines before fuzzy adaptation.</sub>
+  <sub> Relative OP-CBRS potential values for normal and drift-prone states. The normal state remains nearly stable, while the drift-prone state declines before fuzzy adaptation.</sub>
 </p>
 
 ### 8.4 Normalized Transfer Performance
@@ -917,7 +917,7 @@ This format is more reliable for GitHub README pages than embedding local MP4 fi
 </p>
 
 <p align="center">
-  <sub><b>Figure 5.</b> Normalized transfer performance in <code>e2</code>. Higher values indicate better performance. The transferred policy provides strong time-energy efficiency, while the analytic OSD and uniform 1.00 m/s baselines provide lower drift.</sub>
+  <sub>Normalized transfer performance in <code>e2</code>. Higher values indicate better performance. The transferred policy provides strong time-energy efficiency, while the analytic OSD and uniform 1.00 m/s baselines provide lower drift.</sub>
 </p>
 
 ### 8.5 Original Reward and Fuzzy-Enhanced Potential
@@ -927,7 +927,7 @@ This format is more reliable for GitHub README pages than embedding local MP4 fi
 </p>
 
 <p align="center">
-  <sub><b>Figure 6.</b> Original reward and fuzzy-enhanced OP-CBRS potential over a selected inspection window. The fuzzy-enhanced potential declines earlier than the sparse reward, providing an earlier risk-sensitive signal.</sub>
+  <sub> Original reward and fuzzy-enhanced OP-CBRS potential over a selected inspection window. The fuzzy-enhanced potential declines earlier than the sparse reward, providing an earlier risk-sensitive signal.</sub>
 </p>
 
 ---
