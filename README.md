@@ -34,7 +34,7 @@ The central goal is to study how an autonomous UAV can complete multi-waypoint i
 
 ---
 
-## 2. Paper Alignment and Main Workflow
+## 2. Main Workflow
 
 UAV inspection in GPS-denied environments is difficult because sparse visual texture, localization drift, delayed reward feedback, and cross-domain visual changes jointly affect route completion and inspection quality.
 
@@ -82,9 +82,7 @@ Paper metrics, figures, selected episodes, and compact result package
   <img src="figs/1.png" width="95%" alt="System model of OSD, OP-CBRS, fuzzy reasoning, and Sim2Sim policy transfer"/>
 </p>
 
-<p align="center">
-  <sub> Proposed UAV inspection framework. Uniform-speed tasks collect offline episodes and train potential functions. Fuzzy reasoning over texture, illumination, wind, and adherence supports potential selection for OSD training with OP-CBRS. The learned policy adapts from source environment <code>e1</code> to target environment <code>e2</code> through Sim2Sim fuzzy recalibration.</sub>
-</p>
+Proposed UAV inspection framework. Uniform-speed tasks collect offline episodes and train potential functions. Fuzzy reasoning over texture, illumination, wind, and adherence supports potential selection for OSD training with OP-CBRS. The learned policy adapts from source environment <code>e1</code> to target environment <code>e2</code> through Sim2Sim fuzzy recalibration.
 
 ---
 
