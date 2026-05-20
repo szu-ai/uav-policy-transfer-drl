@@ -884,9 +884,7 @@ This format is more reliable for GitHub README pages than embedding local MP4 fi
   <img src="figs/2.png" width="95%" alt="Coverage, localization, and feature-density visualization for source and target domains"/>
 </p>
 
-<p align="center">
-  <sub> Isaac Sim coverage, localization, and feature-density visualization. The top row shows the source power-plant domain <code>e1</code>, and the bottom row shows the target industrial domain <code>e2</code>. Each row includes the coverage path, Isaac Sim scene, proxy-VSLAM trajectory, and visual-feature coverage heatmap.</sub>
-</p>
+Isaac Sim coverage, localization, and feature-density visualization. The top row shows the source power-plant domain <code>e1</code>, and the bottom row shows the target industrial domain <code>e2</code>. Each row includes the coverage path, Isaac Sim scene, proxy-VSLAM trajectory, and visual-feature coverage heatmap.
 
 ### 8.2 Fuzzy-Enhanced OSD Decision-Making
 
@@ -894,9 +892,7 @@ This format is more reliable for GitHub README pages than embedding local MP4 fi
   <img src="figs/3.png" width="95%" alt="Fuzzy-enhanced OSD decision-making with OP-CBRS in e2"/>
 </p>
 
-<p align="center">
-  <sub> Fuzzy-enhanced OSD decision-making with OP-CBRS in <code>e2</code>. The figure shows the 3D UAV inspection trajectory, adaptive speed response, visual-feature response, and dual-camera heatmap sequence.</sub>
-</p>
+Fuzzy-enhanced OSD decision-making with OP-CBRS in <code>e2</code>. The figure shows the 3D UAV inspection trajectory, adaptive speed response, visual-feature response, and dual-camera heatmap sequence.
 
 ### 8.3 OP-CBRS Potential and Pre-Drift Behavior
 
@@ -904,9 +900,7 @@ This format is more reliable for GitHub README pages than embedding local MP4 fi
   <img src="figs/4.png" width="70%" alt="Relative OP-CBRS potential values for normal and drift-prone states"/>
 </p>
 
-<p align="center">
-  <sub> Relative OP-CBRS potential values for normal and drift-prone states. The normal state remains nearly stable, while the drift-prone state declines before fuzzy adaptation.</sub>
-</p>
+Relative OP-CBRS potential values for normal and drift-prone states. The normal state remains nearly stable, while the drift-prone state declines before fuzzy adaptation.
 
 ### 8.4 Normalized Transfer Performance
 
@@ -914,9 +908,7 @@ This format is more reliable for GitHub README pages than embedding local MP4 fi
   <img src="figs/5.png" width="80%" alt="Normalized transfer performance in e2"/>
 </p>
 
-<p align="center">
-  <sub>Normalized transfer performance in <code>e2</code>. Higher values indicate better performance. The transferred policy provides strong time-energy efficiency, while the analytic OSD and uniform 1.00 m/s baselines provide lower drift.</sub>
-</p>
+Normalized transfer performance in <code>e2</code>. Higher values indicate better performance. The transferred policy provides strong time-energy efficiency, while the analytic OSD and uniform 1.00 m/s baselines provide lower drift.
 
 ### 8.5 Original Reward and Fuzzy-Enhanced Potential
 
@@ -924,9 +916,8 @@ This format is more reliable for GitHub README pages than embedding local MP4 fi
   <img src="figs/6.png" width="75%" alt="Original reward and fuzzy-enhanced OP-CBRS potential"/>
 </p>
 
-<p align="center">
-  <sub> Original reward and fuzzy-enhanced OP-CBRS potential over a selected inspection window. The fuzzy-enhanced potential declines earlier than the sparse reward, providing an earlier risk-sensitive signal.</sub>
-</p>
+Original reward and fuzzy-enhanced OP-CBRS potential over a selected inspection window. The fuzzy-enhanced potential declines earlier than the sparse reward, providing an earlier risk-sensitive signal.
+
 
 ---
 
@@ -1027,11 +1018,11 @@ export DEVICE=${DEVICE:-cuda}
 
 ---
 
-## 11. Full Paper Reproduction Pipeline
+## 11. Reproduction Pipeline
 
 The following commands reproduce the paper-style workflow step by step.
 
-### Step 0: Initialize output folders
+### Step 0: Initialize output
 
 ```bash
 cd ~/IsaacLab
@@ -1326,7 +1317,7 @@ cat ~/uav_inspection/metrics/corrected_eval_only_result_table_final.csv
 
 ---
 
-## 13. Select the Best Transferred Episode
+## 13. Select the Transferred Episode
 
 ```bash
 python3 - <<'PY'
