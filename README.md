@@ -814,8 +814,6 @@ Place the screenshots, video preview images, and MP4 videos in the repository ro
 ```text
 images/
 ├── Screenshot from 2026-05-13 21-05-19.png
-├── Screenshot from 2026-05-13 21-05-57.png
-├── Screenshot from 2026-05-19 18-58-09.png
 └── Screenshot from 2026-05-19 19-06-59.png
 
 videos/
@@ -835,12 +833,9 @@ The screenshots show the UAV inspection scene, route-following behavior, industr
 
 <table>
 <tr>
-<td align="center"><img src="images/Screenshot%20from%202026-05-13%2021-05-19.png" width="100%" alt="Rendering view 1: UAV inspection environment"/><br/><sub>Rendering view 1: UAV inspection environment</sub></td>
-<td align="center"><img src="images/Screenshot%20from%202026-05-13%2021-05-57.png" width="100%" alt="Rendering view 2: UAV route and scene geometry"/><br/><sub>Rendering view 2: UAV route and scene geometry</sub></td>
-</tr>
-<tr>
-<td align="center"><img src="images/Screenshot%20from%202026-05-19%2018-58-09.png" width="100%" alt="Rendering view 3: inspection-domain visualization"/><br/><sub>Rendering view 3: inspection-domain visualization</sub></td>
-<td align="center"><img src="images/Screenshot%20from%202026-05-19%2019-06-59.png" width="100%" alt="Rendering view 4: UAV simulation execution"/><br/><sub>Rendering view 4: UAV simulation execution</sub></td>
+<td align="center"><img src="images/Screenshot%20from%202026-05-13%2021-05-19.png" width="100%" alt="Rendering view 1: UAV inspection environment"/><br/><sub>Rendering view 1: UAV inspection e1 environment</sub></td>
+
+<td align="center"><img src="images/Screenshot%20from%202026-05-19%2019-06-59.png" width="100%" alt="Rendering view 4: UAV simulation execution"/><br/><sub>Rendering view 2: UAV nspection e2 environment</sub></td>
 </tr>
 </table>
 
