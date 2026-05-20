@@ -1720,28 +1720,3 @@ Before reporting results, verify:
 
 ---
 
-## 22. Citation
-
-If this artifact is used in a publication, cite the paper:
-
-```bibtex
-@article{borhan2026autonomous,
-  title   = {Autonomous Policy Transfer for GPS-Denied UAV Infrastructure Inspection},
-  author  = {Borhan, Uddin Md. and Du, Bingqing and Raza, Arif and Li, Jianqiang and Chen, Jie},
-  journal = {IEEE Transactions on Intelligent Vehicles},
-  year    = {2026},
-  note    = {Manuscript under review / preprint}
-}
-```
-
----
-
-## 23. License
-
-Add the project license here before public release.
-
-Recommended options:
-
-- MIT License for open research code,
-- Apache-2.0 for permissive open-source release,
-- or a custom academic-use license if the repository is only for review and reproducibility.
