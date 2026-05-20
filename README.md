@@ -20,7 +20,7 @@
 
 <p align="justify">This repository provides the paper-aligned implementation for autonomous UAV infrastructure inspection in GPS-denied environments.</p>
 
-<p align="justify">The implementation uses **Isaac Sim / Isaac Lab** to evaluate a UAV inspection policy under visually degraded localization conditions. The policy learns an **Optimal Speed Decision (OSD)** behavior and combines:</p>
+<p align="justify">The implementation uses <strong>Isaac Sim / Isaac Lab</strong> to evaluate a UAV inspection policy under visually degraded localization conditions. The policy learns an <strong>Optimal Speed Decision (OSD)</strong> behavior and combines:</p>
 
 - **Deep Reinforcement Learning (DRL)** using PPO-style policy learning,
 - **Fuzzy reasoning** over visual texture, illumination, wind, and trajectory adherence,
@@ -155,13 +155,13 @@ cd ~/IsaacLab
 ./isaaclab.sh -p source/standalone/npp_drone_inspection/drone.py --help
 ```
 
-<p align="justify">Do **not** run `drone.py` with a normal system Python interpreter.</p>
+<p align="justify">Do <strong>not</strong> run <code>drone.py</code> with a normal system Python interpreter.</p>
 
 ---
 
 ## 5. Detailed Code Tour: `drone.py`
 
-<p align="justify">The file `drone.py` is the complete implementation entry point for the Isaac Sim / Isaac Lab UAV inspection experiments. It combines environment construction, GPS-denied localization simulation, fuzzy OSD control, OP-CBRS reward shaping, PPO training, Sim2Sim transfer, evaluation, metric logging, and figure generation in one reproducible script.</p>
+<p align="justify">The file <code>drone.py</code> is the complete implementation entry point for the Isaac Sim / Isaac Lab UAV inspection experiments. It combines environment construction, GPS-denied localization simulation, fuzzy OSD control, OP-CBRS reward shaping, PPO training, Sim2Sim transfer, evaluation, metric logging, and figure generation in one reproducible script.</p>
 
 ### 5.1 High-Level File Structure
 
@@ -178,7 +178,7 @@ cd ~/IsaacLab
 
 ### 5.2 Command-Line Interface and Experiment Control
 
-<p align="justify">The `parse_args()` function exposes all important experimental settings. The arguments are grouped into six practical categories.</p>
+<p align="justify">The <code>parse_args()</code> function exposes all important experimental settings. The arguments are grouped into six practical categories.</p>
 
 #### A. Execution and algorithm mode
 
@@ -276,7 +276,7 @@ cd ~/IsaacLab
 
 ### 5.3 `CuvslamOdomReceiver`: External Visual-SLAM Input
 
-<p align="justify">`CuvslamOdomReceiver` allows the same environment to run with external Isaac ROS Visual SLAM odometry.</p>
+<p align="justify"><code>CuvslamOdomReceiver</code> allows the same environment to run with external Isaac ROS Visual SLAM odometry.</p>
 
 <p align="justify">It supports two odometry paths:</p>
 
@@ -303,7 +303,7 @@ cd ~/IsaacLab
 
 ### 5.4 `NPPDroneGymEnv`: Main UAV Inspection Environment
 
-<p align="justify">`NPPDroneGymEnv` is the main environment class. It inherits from `gym.Env` and provides standard `reset()` and `step()` methods for PPO and evaluation.</p>
+<p align="justify"><code>NPPDroneGymEnv</code> is the main environment class. It inherits from <code>gym.Env</code> and provides standard <code>reset()</code> and <code>step()</code> methods for PPO and evaluation.</p>
 
 <p align="justify">The environment is responsible for:</p>
 
@@ -323,7 +323,7 @@ cd ~/IsaacLab
 
 ### 5.5 Environment Initialization
 
-<p align="justify">The `__init__()` method configures the full simulation and learning environment.</p>
+<p align="justify">The <code>__init__()</code> method configures the full simulation and learning environment.</p>
 
 <p align="justify">Main initialization groups:</p>
 
@@ -338,7 +338,7 @@ cd ~/IsaacLab
 | Safety and transfer shield | `policy_analytic_blend`, `adaptive_speed_floor`, `obstacle_avoidance_gain`, `yaw_gain`, `velocity_memory` | Improves route completion and safe waypoint tracking during transfer. |
 | Metrics state | `summary_counts`, `trajectory_records`, `episode_metrics` | Stores paper-level metrics and per-episode trajectories. |
 
-<p align="justify">The environment also verifies the route length at startup. For `e1`, it expects 16 inspection waypoints. For `e2`, it expects 12 inspection waypoints. This protects the evaluation from accidentally using an outdated or incomplete route definition.</p>
+<p align="justify">The environment also verifies the route length at startup. For <code>e1</code>, it expects 16 inspection waypoints. For <code>e2</code>, it expects 12 inspection waypoints. This protects the evaluation from accidentally using an outdated or incomplete route definition.</p>
 
 ---
 
@@ -354,14 +354,14 @@ self.action_space = spaces.Box(
 )
 ```
 
-<p align="justify">The PPO policy outputs one normalized scalar action in `[-1, 1]`. The environment converts it into a physical speed between `v_min` and `v_max`:</p>
+<p align="justify">The PPO policy outputs one normalized scalar action in <code>[-1, 1]</code>. The environment converts it into a physical speed between <code>v_min</code> and <code>v_max</code>:</p>
 
 ```text
 speed_alpha = 0.5 * (action + 1)
 policy_speed = v_min + speed_alpha * (v_max - v_min)
 ```
 
-<p align="justify">This means the learned policy does **not** directly control `vx`, `vy`, `vz`, or yaw-rate. Instead, it chooses the scalar inspection speed. The low-level waypoint tracker converts this speed into body-frame motion toward the active inspection waypoint.</p>
+<p align="justify">This means the learned policy does <strong>not</strong> directly control <code>vx</code>, <code>vy</code>, <code>vz</code>, or yaw-rate. Instead, it chooses the scalar inspection speed. The low-level waypoint tracker converts this speed into body-frame motion toward the active inspection waypoint.</p>
 
 <p align="justify">The observation vector includes:</p>
 
@@ -382,7 +382,7 @@ policy_speed = v_min + speed_alpha * (v_max - v_min)
 
 ### 5.7 `reset()`: Episode Initialization
 
-<p align="justify">The `reset()` method prepares a new inspection episode.</p>
+<p align="justify">The <code>reset()</code> method prepares a new inspection episode.</p>
 
 <p align="justify">Main operations:</p>
 
@@ -402,7 +402,7 @@ policy_speed = v_min + speed_alpha * (v_max - v_min)
 
 ### 5.8 `step()`: OSD Speed Selection, Tracking, and Reward
 
-<p align="justify">The `step()` method is where the learned OSD action becomes UAV motion.</p>
+<p align="justify">The <code>step()</code> method is where the learned OSD action becomes UAV motion.</p>
 
 <p align="justify">The control sequence is:</p>
 
@@ -444,7 +444,7 @@ update velocity, position, SLAM, scene, reward, and logs
 | Velocity memory | Smooths commanded velocity for stable motion. |
 | No-progress watchdog | Stops deadlocked runs without affecting successful route-completion evaluation. |
 
-<p align="justify">The method then calls `_compute_reward()` and records the transition. If the route is complete, the episode is finalized and figures/metrics can be saved.</p>
+<p align="justify">The method then calls <code>_compute_reward()</code> and records the transition. If the route is complete, the episode is finalized and figures/metrics can be saved.</p>
 
 ---
 
@@ -477,7 +477,7 @@ update velocity, position, SLAM, scene, reward, and logs
 
 ### 5.10 Route Construction and Domain Difference
 
-<p align="justify">The inspection route is generated by `_build_boustrophedon_targets()`.</p>
+<p align="justify">The inspection route is generated by <code>_build_boustrophedon_targets()</code>.</p>
 
 | Domain | Route design |
 |---|---|
@@ -527,7 +527,7 @@ update velocity, position, SLAM, scene, reward, and logs
 | `_camera_features()` | Builds feature/visibility cues from camera geometry. |
 | `_estimate_visible_feature_count()` | Estimates how many useful visual features are visible. |
 
-<p align="justify">In `--slam-mode cuvslam`, the environment can use the latest external odometry from `CuvslamOdomReceiver`. This supports future experiments with Isaac ROS Visual SLAM instead of only proxy-SLAM.</p>
+<p align="justify">In <code>--slam-mode cuvslam</code>, the environment can use the latest external odometry from <code>CuvslamOdomReceiver</code>. This supports future experiments with Isaac ROS Visual SLAM instead of only proxy-SLAM.</p>
 
 ---
 
@@ -588,7 +588,7 @@ base reward + potential-based shaping
 
 ### 5.14 Reward Function and Episode Termination
 
-<p align="justify">The final reward is computed by `_compute_reward()`.</p>
+<p align="justify">The final reward is computed by <code>_compute_reward()</code>.</p>
 
 <p align="justify">The reward combines:</p>
 
@@ -675,7 +675,7 @@ base reward + potential-based shaping
 
 ### 5.17 PPO Training and Sim2Sim Transfer in `main()`
 
-<p align="justify">The `main()` function creates the Isaac Sim application, imports Isaac/Usd modules, creates the environment, and dispatches each algorithmic mode.</p>
+<p align="justify">The <code>main()</code> function creates the Isaac Sim application, imports Isaac/Usd modules, creates the environment, and dispatches each algorithmic mode.</p>
 
 <p align="justify">Important inner functions:</p>
 
@@ -823,7 +823,7 @@ videos/
 
 ### 7.3 Simulation Video Previews
 
-<p align="justify">The following previews are clickable screenshots. Click a preview image to open the corresponding MP4 video from the `videos/` folder. This format is more reliable for GitHub README pages than embedding local MP4 files with HTML video tags.</p>
+<p align="justify">The following previews are clickable screenshots. Click a preview image to open the corresponding MP4 video from the <code>videos/</code> folder. This format is more reliable for GitHub README pages than embedding local MP4 files with HTML video tags.</p>
 
 <table>
 <tr>
@@ -966,7 +966,7 @@ videos/
 ### 9.6 Result Interpretation
 
 <p align="justify">The result tables should be read together rather than independently. The main evidence is that the transferred OSD+Fuzzy+OP-CBRS policy preserves complete route execution in the target domain while reducing time and energy compared with the same-protocol baselines. At the same time, the drift results show an efficiency-drift trade-off: the transferred policy is faster and more energy-efficient, but not uniformly better in drift incidents than the most conservative analytic or high-speed uniform baselines.</p>
-<p align="justify">The transferred policy completes all target-domain episodes and achieves the best average execution time and energy consumption among the same-protocol `e2` policies. The analytic OSD and uniform 1.00 m/s baselines show lower drift incidents, while the transferred policy provides stronger time-energy efficiency. Therefore, the result claim should be stated as **improved time-energy efficiency under full route completion**, not as uniformly lower drift.</p>
+<p align="justify">The transferred policy completes all target-domain episodes and achieves the best average execution time and energy consumption among the same-protocol <code>e2</code> policies. The analytic OSD and uniform 1.00 m/s baselines show lower drift incidents, while the transferred policy provides stronger time-energy efficiency. Therefore, the result claim should be stated as <strong>improved time-energy efficiency under full route completion</strong>, not as uniformly lower drift.</p>
 
 ---
 
@@ -1037,4 +1037,664 @@ mkdir -p ~/uav_inspection/{logs,metrics,figures,trajectories,models,op_cbrs,pape
   --sim-env-id e1 --output-root ~/uav_inspection \
   --offline-episodes-per-speed 25 --uniform-speeds 0.25,0.50,0.75,1.00 \
   --max-episode-steps 12000 --inspection-reach-radius 2.00 \
-  --disable-domain-randomization -
+  --disable-domain-randomization --disable-obstacle-randomization \
+  --disable-collision-termination --num-obstacles 0 \
+  --policy-analytic-blend 0.75 --adaptive-speed-floor 0.55 \
+  --yaw-gain 2.35 --velocity-memory 0.70
+
+ls -lh ~/uav_inspection/op_cbrs/op_cbrs_library.json || true
+```
+
+<p align="justify">Purpose:</p>
+
+```text
+Collect fixed-speed rollouts for speeds 0.25, 0.50, 0.75, and 1.00 m/s.
+These rollouts provide the offline basis for the OP-CBRS potential library.
+```
+
+---
+
+### Step 2: Build the OP-CBRS potential library
+
+```bash
+./isaaclab.sh -p source/standalone/npp_drone_inspection/drone.py \
+  --mode build_op_cbrs_library --headless --device $DEVICE --slam-mode proxy \
+  --sim-env-id e1 --output-root ~/uav_inspection \
+  --potential-library ~/uav_inspection/op_cbrs/op_cbrs_library.json \
+  --uniform-speeds 0.25,0.50,0.75,1.00 --max-episode-steps 6000 \
+  --inspection-reach-radius 2.00 --disable-domain-randomization \
+  --disable-obstacle-randomization --disable-collision-termination \
+  --num-obstacles 0 --policy-analytic-blend 0.75 --adaptive-speed-floor 0.55 \
+  --yaw-gain 2.35 --velocity-memory 0.70
+
+ls -lh ~/uav_inspection/op_cbrs/op_cbrs_library.json
+```
+
+<p align="justify">Expected output:</p>
+
+```text
+~/uav_inspection/op_cbrs/op_cbrs_library.json
+```
+
+---
+
+### Step 3: Train source PPO OSD policy in `e1`
+
+```bash
+./isaaclab.sh -p source/standalone/npp_drone_inspection/drone.py \
+  --mode train_e1_osd --headless --device $DEVICE --slam-mode proxy \
+  --sim-env-id e1 --output-root ~/uav_inspection \
+  --metrics-dir ~/uav_inspection/train_metrics_e1_final \
+  --trajectory-dir ~/uav_inspection/train_trajectories_e1_final \
+  --figure-dir ~/uav_inspection/train_figures_e1_final \
+  --disable-paper-figures --potential-library ~/uav_inspection/op_cbrs/op_cbrs_library.json \
+  --total-timesteps 350000 --osd-vmin 0.25 --osd-vmax 1.00 \
+  --max-episode-steps 4000 --inspection-reach-radius 2.00 \
+  --disable-obstacle-randomization --disable-collision-termination \
+  --num-obstacles 0 --policy-analytic-blend 0.0 \
+  --adaptive-speed-floor 0.45 --yaw-gain 2.15 --velocity-memory 0.74
+
+ls -lh ~/uav_inspection/models/osd_fuzzy_opcbrs_source_e1.zip
+```
+
+<p align="justify">Important note:</p>
+
+```text
+--policy-analytic-blend 0.0 lets PPO learn the scalar OSD action directly.
+```
+
+<p align="justify">Expected output:</p>
+
+```text
+~/uav_inspection/models/osd_fuzzy_opcbrs_source_e1.zip
+```
+
+---
+
+### Step 4: Evaluate source policy in `e1`
+
+```bash
+./isaaclab.sh -p source/standalone/npp_drone_inspection/drone.py \
+  --mode eval_transfer --headless --device $DEVICE --slam-mode proxy \
+  --sim-env-id e1 --output-root ~/uav_inspection \
+  --metrics-dir ~/uav_inspection/eval_metrics_e1_source_final \
+  --trajectory-dir ~/uav_inspection/eval_trajectories_e1_source_final \
+  --figure-dir ~/uav_inspection/eval_figures_e1_source_final \
+  --disable-domain-randomization --disable-obstacle-randomization \
+  --disable-collision-termination --num-obstacles 0 \
+  --potential-library ~/uav_inspection/op_cbrs/op_cbrs_library.json \
+  --transfer-model ~/uav_inspection/models/osd_fuzzy_opcbrs_source_e1.zip \
+  --eval-episodes 20 --osd-vmin 0.25 --osd-vmax 1.00 \
+  --max-episode-steps 8000 --inspection-reach-radius 2.00 \
+  --heatmap-grid-size 120 --policy-analytic-blend 0.80 \
+  --adaptive-speed-floor 0.60 --yaw-gain 2.40 --velocity-memory 0.68
+
+ls -lh ~/uav_inspection/eval_figures_e1_source_final/ | head || true
+```
+
+<p align="justify">Purpose:</p>
+
+```text
+Generate source-domain evaluation metrics and figures for the trained e1 policy.
+```
+
+---
+
+### Step 5: Perform Sim2Sim transfer from `e1` to `e2`
+
+```bash
+./isaaclab.sh -p source/standalone/npp_drone_inspection/drone.py \
+  --mode transfer_e2 --headless --device $DEVICE --slam-mode proxy \
+  --sim-env-id e2 --output-root ~/uav_inspection \
+  --metrics-dir ~/uav_inspection/train_metrics_e2_transfer_final \
+  --trajectory-dir ~/uav_inspection/train_trajectories_e2_transfer_final \
+  --figure-dir ~/uav_inspection/train_figures_e2_transfer_final \
+  --disable-paper-figures --potential-library ~/uav_inspection/op_cbrs/op_cbrs_library.json \
+  --source-model ~/uav_inspection/models/osd_fuzzy_opcbrs_source_e1.zip \
+  --transfer-episodes 50 --transfer-timesteps 600000 \
+  --osd-vmin 0.25 --osd-vmax 1.00 --max-episode-steps 4000 \
+  --inspection-reach-radius 2.00 --disable-obstacle-randomization \
+  --disable-collision-termination --num-obstacles 0 \
+  --policy-analytic-blend 0.65 --adaptive-speed-floor 0.55 \
+  --yaw-gain 2.35 --velocity-memory 0.70
+
+ls -lh ~/uav_inspection/models/osd_fuzzy_opcbrs_transfer_e2.zip
+```
+
+<p align="justify">Expected output:</p>
+
+```text
+~/uav_inspection/models/osd_fuzzy_opcbrs_transfer_e2.zip
+```
+
+---
+
+### Step 6: Evaluate target-domain baselines in `e2`
+
+```bash
+./isaaclab.sh -p source/standalone/npp_drone_inspection/drone.py \
+  --mode eval_baselines --headless --device $DEVICE --slam-mode proxy \
+  --sim-env-id e2 --output-root ~/uav_inspection \
+  --metrics-dir ~/uav_inspection/eval_metrics_e2_baselines_final \
+  --trajectory-dir ~/uav_inspection/eval_trajectories_e2_baselines_final \
+  --figure-dir ~/uav_inspection/eval_figures_e2_baselines_final \
+  --potential-library ~/uav_inspection/op_cbrs/op_cbrs_library.json \
+  --eval-episodes 50 --uniform-speeds 0.25,0.50,0.75,1.00 \
+  --osd-vmin 0.25 --osd-vmax 1.00 --max-episode-steps 12000 \
+  --inspection-reach-radius 2.00 --heatmap-grid-size 120 \
+  --disable-obstacle-randomization --disable-collision-termination \
+  --num-obstacles 0 --policy-analytic-blend 0.75 \
+  --adaptive-speed-floor 0.55 --yaw-gain 2.35 --velocity-memory 0.70
+
+ls -lh ~/uav_inspection/eval_metrics_e2_baselines_final/paper_episode_metrics.csv
+```
+
+<p align="justify">Purpose:</p>
+
+```text
+Evaluate fixed-speed and analytic reference baselines in the target industrial domain.
+```
+
+---
+
+### Step 7: Evaluate final transferred policy in `e2`
+
+```bash
+./isaaclab.sh -p source/standalone/npp_drone_inspection/drone.py \
+  --mode eval_transfer --headless --device $DEVICE --slam-mode proxy \
+  --sim-env-id e2 --output-root ~/uav_inspection \
+  --metrics-dir ~/uav_inspection/eval_metrics_e2_transfer_final \
+  --trajectory-dir ~/uav_inspection/eval_trajectories_e2_transfer_final \
+  --figure-dir ~/uav_inspection/eval_figures_e2_transfer_final \
+  --potential-library ~/uav_inspection/op_cbrs/op_cbrs_library.json \
+  --transfer-model ~/uav_inspection/models/osd_fuzzy_opcbrs_transfer_e2.zip \
+  --eval-episodes 175 --osd-vmin 0.25 --osd-vmax 1.00 \
+  --max-episode-steps 12000 --inspection-reach-radius 2.00 \
+  --heatmap-grid-size 120 --disable-obstacle-randomization \
+  --disable-collision-termination --num-obstacles 0 \
+  --policy-analytic-blend 0.85 --adaptive-speed-floor 0.65 \
+  --yaw-gain 2.45 --velocity-memory 0.66
+
+ls -lh ~/uav_inspection/eval_metrics_e2_transfer_final/paper_episode_metrics.csv
+ls -lh ~/uav_inspection/eval_figures_e2_transfer_final/ | head || true
+```
+
+<p align="justify">For quick debugging, reduce:</p>
+
+```text
+--eval-episodes 175
+```
+
+<p align="justify">to:</p>
+
+```text
+--eval-episodes 20
+```
+
+---
+
+## 12. Build Final Tables and Package
+
+<p align="justify">After Step 7, create a clean result table using only the final baseline and transfer evaluation CSV files.</p>
+
+```bash
+python3 - <<'PY'
+from pathlib import Path
+import pandas as pd
+
+root = Path.home() / "uav_inspection"
+files = [
+    root / "eval_metrics_e2_baselines_final/paper_episode_metrics.csv",
+    root / "eval_metrics_e2_transfer_final/paper_episode_metrics.csv",
+]
+
+dfs = []
+for f in files:
+    if f.exists():
+        df = pd.read_csv(f)
+        df["source_file"] = str(f)
+        dfs.append(df)
+    else:
+        print("Missing:", f)
+
+if not dfs:
+    raise SystemExit("No metrics files found.")
+
+df = pd.concat(dfs, ignore_index=True)
+
+def success_time(g):
+    ok = g["Psucc_episode"].eq(1)
+    return g.loc[ok, "tau_i_sec"].mean() if ok.any() else 0.0
+
+def positive_mean(s):
+    s = s[s > 0]
+    return s.mean() if len(s) else 0.0
+
+def safe_mean(g, col):
+    return g[col].mean() if col in g.columns else 0.0
+
+def safe_sum(g, col):
+    return g[col].sum() if col in g.columns else 0.0
+
+summary = df.groupby(["sim_env_id", "policy_name"]).apply(
+    lambda g: pd.Series({
+        "Ntotal": len(g),
+        "Psucc_percent": 100.0 * g["Psucc_episode"].mean(),
+        "Dinc_total": g["Dinc_episode"].sum(),
+        "Dinc_per_episode": g["Dinc_episode"].mean(),
+        "Aloc_percent": 100.0 * g["Aloc_episode"].mean(),
+        "tau_avg_success_sec": success_time(g),
+        "Econ_Wh_mean": g["Econ_Wh_episode"].mean(),
+        "Etime_sec": positive_mean(g["Etime_sec_episode"]),
+        "mean_speed_mps": g["mean_speed_mps"].mean(),
+        "mean_mu_T": g["mean_mu_T"].mean(),
+        "mean_mu_A": g["mean_mu_A"].mean(),
+        "reward_sum_mean": safe_mean(g, "reward_sum"),
+        "performance_reward_sum_mean": safe_mean(g, "performance_reward_sum"),
+        "performance_reward_sum_total": safe_sum(g, "performance_reward_sum"),
+    })
+).reset_index()
+
+out = root / "metrics/corrected_eval_only_result_table_final.csv"
+out.parent.mkdir(parents=True, exist_ok=True)
+summary.round(4).to_csv(out, index=False)
+
+print(summary.round(4).to_string(index=False))
+print("\nSaved:", out)
+PY
+
+cat ~/uav_inspection/metrics/corrected_eval_only_result_table_final.csv
+```
+
+---
+
+## 13. Select the Transferred Episode
+
+```bash
+python3 - <<'PY'
+from pathlib import Path
+import pandas as pd
+
+root = Path.home() / "uav_inspection"
+p = root / "eval_metrics_e2_transfer_final/paper_episode_metrics.csv"
+df = pd.read_csv(p)
+
+best = df[df["Psucc_episode"].eq(1)].copy()
+cols = [
+    "episode", "sim_env_id", "policy_name", "Psucc_episode",
+    "waypoints_reached", "Dinc_episode", "Aloc_episode",
+    "tau_i_sec", "Econ_Wh_episode", "mean_mu_T", "mean_speed_mps",
+]
+if "performance_reward_sum" in best.columns:
+    cols.append("performance_reward_sum")
+
+if best.empty:
+    raise SystemExit("No successful transferred PPO episode found.")
+
+best["score"] = (
+    best["Psucc_episode"] * 120
+    + best["Aloc_episode"] * 25
+    - best["Dinc_episode"] * 7
+    - best["tau_i_sec"] * 0.015
+    - best["Econ_Wh_episode"] * 0.50
+)
+if "performance_reward_sum" in best.columns:
+    best["score"] += 0.02 * best["performance_reward_sum"]
+
+best = best.sort_values("score", ascending=False)
+print(best[cols + ["score"]].head(15).to_string(index=False))
+
+ep = int(best.iloc[0]["episode"])
+ep_str = f"{ep:04d}"
+out = root / "metrics/best_episode.txt"
+out.write_text(ep_str)
+print(f"\nBest episode: {ep_str}")
+PY
+```
+
+---
+
+## 14. Copy Selected Figures
+
+```bash
+export BEST_EP=$(cat ~/uav_inspection/metrics/best_episode.txt)
+echo "Using BEST_EP=$BEST_EP"
+mkdir -p ~/uav_inspection/paper_selected_figures
+
+copy_if_exists() {
+  src="$1"
+  dst="$2"
+  if [ -f "$src" ]; then
+    cp "$src" "$dst"
+    echo "Copied: $dst"
+  else
+    echo "Warning: missing $src"
+  fi
+}
+
+copy_if_exists ~/uav_inspection/eval_figures_e2_transfer_final/episode_${BEST_EP}_visual_heatmap_sequence.png \
+  ~/uav_inspection/paper_selected_figures/fig_fuzzy_heatmap_sequence_transfer_e2.png
+
+copy_if_exists ~/uav_inspection/eval_figures_e2_transfer_final/episode_${BEST_EP}_decision_dynamics.png \
+  ~/uav_inspection/paper_selected_figures/fig_decision_dynamics_transfer_e2.png
+
+copy_if_exists ~/uav_inspection/eval_figures_e2_transfer_final/episode_${BEST_EP}_trajectory3d.png \
+  ~/uav_inspection/paper_selected_figures/fig_trajectory3d_transfer_e2.png
+
+copy_if_exists ~/uav_inspection/eval_figures_e2_transfer_final/episode_${BEST_EP}_perception_heatmap.png \
+  ~/uav_inspection/paper_selected_figures/fig_visual_feature_heatmap_transfer_e2.png
+
+ls -lh ~/uav_inspection/paper_selected_figures/ || true
+```
+
+---
+
+## 15. Build Compact Package
+
+```bash
+cd ~/uav_inspection
+rm -rf paper
+mkdir -p paper/00_summary paper/01_selected_figures paper/02_selected_episode \
+         paper/03_metrics_csv paper/04_models paper/05_reproducibility paper/06_code \
+         paper/07_simulation_media/images paper/07_simulation_media/videos
+
+cp metrics/corrected_eval_only_result_table_final.csv paper/00_summary/
+cp metrics/best_episode.txt paper/00_summary/
+
+cp eval_metrics_e2_transfer_final/paper_episode_metrics.csv  paper/03_metrics_csv/e2_transfer_episode_metrics.csv
+cp eval_metrics_e2_baselines_final/paper_episode_metrics.csv paper/03_metrics_csv/e2_baselines_episode_metrics.csv
+cp train_metrics_e1_final/paper_episode_metrics.csv          paper/03_metrics_csv/e1_training_episode_metrics.csv
+cp train_metrics_e2_transfer_final/paper_episode_metrics.csv paper/03_metrics_csv/e2_transfer_training_episode_metrics.csv
+
+cp models/osd_fuzzy_opcbrs_source_e1.zip  paper/04_models/
+cp models/osd_fuzzy_opcbrs_transfer_e2.zip paper/04_models/
+
+if [ -f algorithm_manifest.json ]; then
+  cp algorithm_manifest.json paper/05_reproducibility/
+else
+  echo "Warning: algorithm_manifest.json not found, skipping."
+fi
+
+cp op_cbrs/op_cbrs_library.json paper/05_reproducibility/
+cp ~/IsaacLab/source/standalone/npp_drone_inspection/drone.py paper/06_code/drone_final.py
+rsync -a paper_selected_figures/ paper/01_selected_figures/ || true
+rsync -a ~/Desktop/drone/images/ paper/07_simulation_media/images/ 2>/dev/null || true
+rsync -a ~/Desktop/drone/videos/ paper/07_simulation_media/videos/ 2>/dev/null || true
+
+export BEST_EP=$(cat ~/uav_inspection/metrics/best_episode.txt)
+
+copy_if_exists eval_trajectories_e2_transfer_final/episode_${BEST_EP}_trajectory.csv  paper/02_selected_episode/episode_${BEST_EP}_trajectory.csv
+copy_if_exists eval_trajectories_e2_transfer_final/episode_${BEST_EP}_trajectory.json paper/02_selected_episode/episode_${BEST_EP}_trajectory.json
+copy_if_exists eval_trajectories_e2_transfer_final/episode_${BEST_EP}_results_interpretation.txt paper/02_selected_episode/episode_${BEST_EP}_results_interpretation.txt
+
+cat > paper/README.txt << README
+Paper-aligned evaluation package — Isaac Sim implementation.
+
+Simulator:   Isaac Sim / Isaac Lab
+SLAM:        Proxy VSLAM-style localization model
+Algorithm:   OSD + Fuzzy + OP-CBRS + Sim2Sim
+
+Domains:
+  - e1 source: power plant, 16-waypoint inspection route
+  - e2 target: industrial yard, 12-waypoint transfer route
+
+Paper alignment:
+  - PBRS form:        f = gamma*Phi(s_t) - Phi(s_{t+1})
+  - PPO lr:           6e-5
+  - PPO buffer:       1024
+  - PPO gamma:        0.95
+  - PPO GAE lambda:   0.98
+  - PPO clip:         0.25
+  - Training steps:   350000
+  - Eval episodes:    175
+  - Uniform speeds:   0.25, 0.50, 0.75, 1.00 m/s
+
+Reward logging:
+  - reward_sum: raw environment return
+  - performance_reward_sum: performance-oriented reward for upward reward plots
+
+Transfer fine-tuning:   50 episodes
+Best episode:           ${BEST_EP}
+README
+
+if command -v tree >/dev/null 2>&1; then
+  tree paper
+else
+  find paper -maxdepth 3 -type f | sort
+fi
+
+find paper -type f | wc -l
+du -sh paper
+
+rm -f paper_final_compact.zip
+zip -r paper_final_compact.zip paper
+ls -lh paper_final_compact.zip
+
+echo "DONE. Final package: ~/uav_inspection/paper_final_compact.zip
+~/IsaacLab/images/
+~/IsaacLab/videos/"
+```
+
+---
+
+## 16. One-File Pipeline Script
+
+<p align="justify">You can save the step-by-step commands as:</p>
+
+```bash
+run_paper_pipeline.sh
+```
+
+<p align="justify">Then run:</p>
+
+```bash
+chmod +x run_paper_pipeline.sh
+./run_paper_pipeline.sh
+```
+
+<p align="justify">The full run may take a long time, especially Step 3 and Step 5. For debugging, reduce:</p>
+
+```text
+--offline-episodes-per-speed 25  ->  2
+--total-timesteps 350000         ->  10000
+--transfer-episodes 50           ->  2
+--eval-episodes 175              ->  5 or 20
+```
+
+---
+
+## 17. Important Configuration Notes
+
+### 17.1 OSD speed range
+
+<p align="justify">The paper-aligned speed range is:</p>
+
+```text
+--osd-vmin 0.25
+--osd-vmax 1.00
+```
+
+### 17.2 Policy/analytic blending
+
+<p align="justify">The scalar control can combine PPO output with an analytic fuzzy OSD shield:</p>
+
+```text
+--policy-analytic-blend 0.0   # pure PPO action
+--policy-analytic-blend 0.65  # transfer-stage blended control
+--policy-analytic-blend 0.85  # final robust evaluation blend
+```
+
+### 17.3 Route completion
+
+<p align="justify">Evaluation and collection commands use:</p>
+
+```text
+--inspection-reach-radius 2.00
+--disable-collision-termination
+--num-obstacles 0
+```
+
+<p align="justify">This keeps the evaluation focused on fuzzy OSD, OP-CBRS, and Sim2Sim behavior rather than global obstacle planning.</p>
+
+### 17.4 Domain randomization
+
+<p align="justify">For deterministic collection and source evaluation:</p>
+
+```text
+--disable-domain-randomization
+```
+
+<p align="justify">For transfer/evaluation focused on target-domain policy behavior, the commands disable obstacle randomization but keep the relevant domain setting through:</p>
+
+```text
+--sim-env-id e2
+```
+
+---
+
+## 18. Optional cuVSLAM Mode
+
+<p align="justify">The default experiments use proxy-VSLAM:</p>
+
+```bash
+--slam-mode proxy
+```
+
+<p align="justify">To test with external Isaac ROS Visual SLAM:</p>
+
+```bash
+./isaaclab.sh -p source/standalone/npp_drone_inspection/drone.py \
+  --mode eval_transfer --headless --device cuda \
+  --slam-mode cuvslam \
+  --enable-ros2-camera-pub \
+  --ros2-domain-id 0 \
+  --sim-env-id e2 \
+  --output-root ~/uav_inspection \
+  --transfer-model ~/uav_inspection/models/osd_fuzzy_opcbrs_transfer_e2.zip
+```
+
+<p align="justify">Expected odometry topic:</p>
+
+```text
+/visual_slam/tracking/odometry
+```
+
+<p align="justify">If direct <code>rclpy</code> subscription is unavailable inside Isaac Sim Python, use the UDP fallback:</p>
+
+```text
+--cuvslam-odom-udp-host 0.0.0.0
+--cuvslam-odom-udp-port 14555
+```
+
+---
+
+## 19. Expected Final Outputs
+
+<p align="justify">After the complete pipeline, the following files/folders should exist:</p>
+
+```text
+~/uav_inspection/op_cbrs/op_cbrs_library.json
+~/uav_inspection/models/osd_fuzzy_opcbrs_source_e1.zip
+~/uav_inspection/models/osd_fuzzy_opcbrs_transfer_e2.zip
+~/uav_inspection/eval_metrics_e2_baselines_final/paper_episode_metrics.csv
+~/uav_inspection/eval_metrics_e2_transfer_final/paper_episode_metrics.csv
+~/uav_inspection/metrics/corrected_eval_only_result_table_final.csv
+~/uav_inspection/metrics/best_episode.txt
+~/uav_inspection/paper_selected_figures/
+~/uav_inspection/paper/
+~/uav_inspection/paper_final_compact.zip
+```
+
+<p align="justify">The compact package contains:</p>
+
+```text
+paper/00_summary/
+paper/01_selected_figures/
+paper/02_selected_episode/
+paper/03_metrics_csv/
+paper/04_models/
+paper/05_reproducibility/
+paper/06_code/
+paper/07_simulation_media/
+```
+
+---
+
+## 20. Troubleshooting
+
+### Problem: `Could not import isaacsim.SimulationApp`
+
+<p align="justify">Cause:</p>
+
+```text
+The script was executed with normal Python instead of Isaac Lab Python.
+```
+
+<p align="justify">Fix:</p>
+
+```bash
+cd ~/IsaacLab
+./isaaclab.sh -p source/standalone/npp_drone_inspection/drone.py --help
+```
+
+### Problem: CUDA not available
+
+<p align="justify">Use CPU mode for debugging:</p>
+
+```bash
+export DEVICE=cpu
+```
+
+<p align="justify">Then rerun the command.</p>
+
+### Problem: No ROS 2 camera images in cuVSLAM mode
+
+<p align="justify">Check:</p>
+
+```bash
+ros2 topic list | grep front_stereo_camera
+```
+
+<p align="justify">Also confirm that Isaac Sim ROS 2 Bridge is enabled and the Isaac timeline is playing.</p>
+
+### Problem: `paper_final_compact.zip` missing
+
+<p align="justify">Check whether the required files exist:</p>
+
+```bash
+ls -lh ~/uav_inspection/eval_metrics_e2_transfer_final/paper_episode_metrics.csv
+ls -lh ~/uav_inspection/eval_metrics_e2_baselines_final/paper_episode_metrics.csv
+ls -lh ~/uav_inspection/models/osd_fuzzy_opcbrs_transfer_e2.zip
+```
+
+<p align="justify">Then rerun Section 12.</p>
+
+### Problem: Training/evaluation is too slow
+
+<p align="justify">Use smaller debug values:</p>
+
+```text
+--total-timesteps 10000
+--transfer-episodes 2
+--eval-episodes 5
+--offline-episodes-per-speed 2
+```
+
+---
+
+## 21. Reproducibility Checklist
+
+<p align="justify">Before reporting results, verify:</p>
+
+- [ ] `drone.py` is located under `~/IsaacLab/source/standalone/npp_drone_inspection/`.
+- [ ] All commands are run from `~/IsaacLab`.
+- [ ] `DEVICE` is set to `cuda` or `cpu`.
+- [ ] OP-CBRS library exists at `~/uav_inspection/op_cbrs/op_cbrs_library.json`.
+- [ ] Source model exists at `~/uav_inspection/models/osd_fuzzy_opcbrs_source_e1.zip`.
+- [ ] Transfer model exists at `~/uav_inspection/models/osd_fuzzy_opcbrs_transfer_e2.zip`.
+- [ ] Final e2 baseline metrics exist.
+- [ ] Final e2 transfer metrics exist.
+- [ ] Selected paper figures were copied.
+- [ ] Compact paper package was generated.
+
+---
