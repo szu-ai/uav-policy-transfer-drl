@@ -1458,7 +1458,7 @@ ls -lh ~/uav_inspection/paper_selected_figures/ || true
 
 ---
 
-## 15. Build Compact Paper Package
+## 15. Build Compact Package
 
 ```bash
 cd ~/uav_inspection
