@@ -1374,7 +1374,7 @@ PY
 
 ---
 
-## 14. Copy Selected Paper Figures
+## 14. Copy Selected Figures
 
 ```bash
 export BEST_EP=$(cat ~/uav_inspection/metrics/best_episode.txt)
