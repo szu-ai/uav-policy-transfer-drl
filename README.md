@@ -1253,7 +1253,7 @@ to:
 
 ---
 
-## 12. Build Final Paper Tables and Package
+## 12. Build Final Tables and Package
 
 After Step 7, create a clean result table using only the final baseline and transfer evaluation CSV files.
 
