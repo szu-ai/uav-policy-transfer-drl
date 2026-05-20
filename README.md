@@ -12,7 +12,7 @@
 > **Paper:** Autonomous Policy Transfer for GPS-Denied UAV Infrastructure Inspection  
 > **Authors:** Uddin Md. Borhan, Bingqing Du, Arif Raza, Jianqiang Li, and Jie Chen  
 > **Affiliation:** College of Computer Science and Software Engineering, Shenzhen University, China  
-> **Code entry point:** `source/standalone/npp_drone_inspection/drone.py`
+
 
 ---
 
@@ -83,7 +83,7 @@ Paper metrics, figures, selected episodes, and compact result package
 </p>
 
 <p align="center">
-  <sub><b>Figure 1.</b> Proposed UAV inspection framework. Uniform-speed tasks collect offline episodes and train potential functions. Fuzzy reasoning over texture, illumination, wind, and adherence supports potential selection for OSD training with OP-CBRS. The learned policy adapts from source environment <code>e1</code> to target environment <code>e2</code> through Sim2Sim fuzzy recalibration.</sub>
+  <sub> Proposed UAV inspection framework. Uniform-speed tasks collect offline episodes and train potential functions. Fuzzy reasoning over texture, illumination, wind, and adherence supports potential selection for OSD training with OP-CBRS. The learned policy adapts from source environment <code>e1</code> to target environment <code>e2</code> through Sim2Sim fuzzy recalibration.</sub>
 </p>
 
 ---
