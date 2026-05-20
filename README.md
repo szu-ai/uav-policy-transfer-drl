@@ -876,51 +876,7 @@ This format is more reliable for GitHub README pages than embedding local MP4 fi
 </tr>
 </table>
 
-### 7.4 Create Preview Images from MP4 Videos
 
-If you need to regenerate the clickable preview screenshots, run:
-
-```bash
-cd ~/Desktop/drone
-
-for f in videos/simulation_demo_*.mp4; do
-  base=$(basename "$f" .mp4)
-  ffmpeg -y -ss 00:00:02 -i "$f" \
-    -frames:v 1 -vf "scale=960:-1" \
-    "videos/${base}_preview.png"
-done
-
-ls -lh videos/*_preview.png
-```
-
-### 7.5 Add Media Files to the Repository
-
-If the media files are currently stored in local folders named `images` and `videos`, keep them in the repository root:
-
-```bash
-cd ~/Desktop/drone
-
-ls -lh images/
-ls -lh videos/
-```
-
-Before pushing to GitHub, confirm these files exist:
-
-```bash
-ls -lh videos/simulation_demo_01.mp4 videos/simulation_demo_01_preview.png
-ls -lh videos/simulation_demo_02.mp4 videos/simulation_demo_02_preview.png
-ls -lh videos/simulation_demo_03.mp4 videos/simulation_demo_03_preview.png
-ls -lh videos/simulation_demo_04.mp4 videos/simulation_demo_04_preview.png
-```
-
-Then commit the README, screenshots, preview images, MP4 videos, and paper figures:
-
-```bash
-git add README.md figs/ images/ videos/
-git commit -m "Add simulation media, paper figures, and result tables"
-```
-
----
 
 ## 8. Paper Figures and Visual Results
 
