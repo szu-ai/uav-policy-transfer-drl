@@ -829,7 +829,7 @@ videos/
 
 ### 7.2 Simulation Rendering Screenshots
 
-The screenshots show the UAV inspection scene, route-following behavior, industrial/power-plant rendering, and visual inspection environment.
+The screenshots show the UAV inspection scene, industrial/power-plant rendering, and visual inspection environment.
 
 <table>
 <tr>
